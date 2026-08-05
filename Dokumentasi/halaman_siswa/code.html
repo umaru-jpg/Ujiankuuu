@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Siswa Dashboard - Ujiankuuu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#131b2e",
+                      "on-secondary-container": "#54647a",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "tertiary-fixed-dim": "#bec6e0",
+                      "surface-dim": "#d9d9e5",
+                      "on-tertiary-fixed-variant": "#3f465c",
+                      "outline-variant": "#c3c6d7",
+                      "error": "#ba1a1a",
+                      "secondary-fixed": "#d3e4fe",
+                      "surface-container-high": "#e7e7f3",
+                      "outline": "#737686",
+                      "on-secondary-fixed": "#0b1c30",
+                      "on-primary": "#ffffff",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "on-primary-fixed": "#00174b",
+                      "on-surface": "#191b23",
+                      "primary": "#004ac6",
+                      "surface-container": "#ededf9",
+                      "surface-variant": "#e1e2ed",
+                      "secondary-container": "#d0e1fb",
+                      "on-tertiary-container": "#eef0ff",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-on-surface": "#f0f0fb",
+                      "tertiary-container": "#656d84",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "surface-container-low": "#f3f3fe",
+                      "on-background": "#191b23",
+                      "surface-tint": "#0053db",
+                      "inverse-primary": "#b4c5ff",
+                      "surface-bright": "#faf8ff",
+                      "tertiary-fixed": "#dae2fd",
+                      "primary-fixed": "#dbe1ff",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "on-primary-container": "#eeefff",
+                      "tertiary": "#4d556b",
+                      "error-container": "#ffdad6",
+                      "primary-container": "#2563eb",
+                      "surface": "#faf8ff",
+                      "secondary": "#505f76",
+                      "on-error-container": "#93000a",
+                      "inverse-surface": "#2e3039",
+                      "surface-container-highest": "#e1e2ed",
+                      "on-surface-variant": "#434655",
+                      "background": "#faf8ff",
+                      "on-secondary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "margin-mobile": "1rem",
+                      "stack-lg": "2rem",
+                      "stack-sm": "0.5rem",
+                      "margin-desktop": "2rem",
+                      "gutter": "1.5rem",
+                      "stack-md": "1rem"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "title-sm": [
+                              "Inter"
+                      ],
+                      "display-lg-mobile": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "title-sm": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "34px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #F8FAFC;
+        }
+        .card-shadow {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .hover-shadow:hover {
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased flex">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col fixed left-0 top-0 h-screen w-[260px] bg-surface border-r border-outline-variant shadow-sm py-stack-lg z-50">
+<div class="px-margin-desktop mb-stack-lg">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Ujiankuuu</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">SMK Jakarta Pusat 1</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined text-secondary">dashboard</span>
+<span class="font-title-sm text-title-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined text-secondary">person</span>
+<span class="font-title-sm text-title-sm">Guru</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-secondary-container text-on-secondary-container border-l-4 border-primary cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-title-sm text-title-sm font-semibold">Siswa</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined text-secondary">school</span>
+<span class="font-title-sm text-title-sm">Kelas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined text-secondary">quiz</span>
+<span class="font-title-sm text-title-sm">Soal</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined text-secondary">calendar_today</span>
+<span class="font-title-sm text-title-sm">Jadwal</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined text-secondary">assessment</span>
+<span class="font-title-sm text-title-sm">Hasil</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 py-3 rounded-lg border border-outline-variant text-secondary hover:bg-surface-container-high transition-colors font-title-sm text-title-sm">
+<span class="material-symbols-outlined">help</span>
+                Bantuan
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-[260px] min-h-screen">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky z-40 bg-surface shadow-sm border-b border-outline-variant flex justify-between items-center px-margin-desktop py-4 w-full">
+<div class="flex items-center md:hidden">
+<h2 class="font-headline-md text-headline-md font-extrabold text-primary">Ujiankuuu</h2>
+</div>
+<div class="hidden md:flex flex-1 max-w-md ml-4">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary focus:bg-surface transition-all font-body-sm text-body-sm text-on-surface" placeholder="Cari ujian, materi..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-stack-md ml-auto">
+<button class="p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="flex items-center gap-3 ml-4 pl-4 border-l border-outline-variant cursor-pointer hover:opacity-80 transition-opacity">
+<img alt="Profile picture" class="w-10 h-10 rounded-full object-cover border-2 border-surface-container-high" data-alt="A professional, clean, light-mode headshot of an Indonesian high school student in uniform. Soft natural lighting. High quality modern corporate dashboard profile picture style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHYfa7mDgaCQMtPHitiAywPsxCrAz47B98GXnLXFe23UzbIL8YtYxfJP7LSQLT0f7PaGV2BXISwx5tgHqL-ZDXbeDrv-nu9lE9IHoI1JnfElykmErHOrsVW5cvem5cRARxJPaoeJiqY7ictcSfAucrvMXGq6Anexn_h6QFmQfdmWP9cqpAqtJSEb89RjgfomjKHYAjkKQCzfxkr5S0aAeDIS6L0m39jA6ZW1iIucr5c7q6IowZlud-sw"/>
+<div class="hidden md:block">
+<p class="font-title-sm text-title-sm text-on-surface">Budi Santoso</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">XII RPL 1</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 p-margin-desktop max-w-container-max mx-auto w-full">
+<!-- Welcome Banner -->
+<div class="mb-stack-lg bg-primary-container rounded-xl p-8 relative overflow-hidden text-on-primary shadow-sm hover-shadow transition-shadow">
+<div class="relative z-10 max-w-2xl">
+<h2 class="font-display-lg text-display-lg mb-2">Selamat Datang, Budi! 👋</h2>
+<p class="font-body-md text-body-md text-on-primary/90 opacity-90 mb-6">Persiapkan dirimu. Ada 1 ujian menantimu hari ini. Tetap fokus dan berikan yang terbaik!</p>
+</div>
+<!-- Abstract BG Elements -->
+<div class="absolute right-0 top-0 w-64 h-full opacity-20 pointer-events-none" style="background: radial-gradient(circle at right center, white 0%, transparent 70%);"></div>
+<div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Left Column (Main Focus) -->
+<div class="lg:col-span-2 space-y-stack-lg">
+<!-- Today's Exam Highlight -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">schedule</span>
+                                Jadwal Ujian Hari Ini
+                            </h3>
+</div>
+<div class="bg-surface rounded-xl p-6 border border-outline-variant card-shadow relative overflow-hidden border-l-4 border-l-primary hover-shadow transition-shadow">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+<div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-error-container text-on-error-container font-label-caps text-label-caps mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
+                                        SEGERA MULAI
+                                    </div>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-1">Pemrograman Web Bergerak</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-4">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> Bpk. Hendra</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">timer</span> 90 Menit</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">list_alt</span> 40 Soal Pilihan Ganda</span>
+</p>
+</div>
+<div class="w-full md:w-auto text-right">
+<p class="font-title-sm text-title-sm text-on-surface mb-2">08:00 - 09:30 WIB</p>
+<button class="w-full md:w-auto bg-primary text-on-primary font-title-sm text-title-sm py-3 px-8 rounded-lg hover:bg-primary/90 transition-colors shadow-sm flex items-center justify-center gap-2 min-h-[44px]">
+                                        Mulai Ujian
+                                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Upcoming & History Bento -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Upcoming -->
+<section class="bg-surface rounded-xl border border-outline-variant card-shadow flex flex-col">
+<div class="p-5 border-b border-outline-variant flex justify-between items-center bg-surface-bright rounded-t-xl">
+<h3 class="font-title-sm text-title-sm text-on-surface font-semibold">Ujian Akan Datang</h3>
+<button class="text-primary text-sm hover:underline font-body-sm text-body-sm">Lihat Semua</button>
+</div>
+<div class="p-2 flex-1">
+<div class="flex items-start gap-4 p-3 hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer border-b border-surface-variant last:border-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-primary font-bold shrink-0">
+<div class="text-center leading-tight">
+<div class="text-xs">Okt</div>
+<div>15</div>
+</div>
+</div>
+<div>
+<h4 class="font-title-sm text-title-sm text-on-surface mb-0.5">Basis Data Lanjut</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs">Selasa, 10:00 WIB • Ibu Sari</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-3 hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-secondary font-bold shrink-0">
+<div class="text-center leading-tight">
+<div class="text-xs">Okt</div>
+<div>18</div>
+</div>
+</div>
+<div>
+<h4 class="font-title-sm text-title-sm text-on-surface mb-0.5">Bahasa Inggris</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs">Jumat, 08:00 WIB • Mr. John</p>
+</div>
+</div>
+</div>
+</section>
+<!-- History -->
+<section class="bg-surface rounded-xl border border-outline-variant card-shadow flex flex-col">
+<div class="p-5 border-b border-outline-variant flex justify-between items-center bg-surface-bright rounded-t-xl">
+<h3 class="font-title-sm text-title-sm text-on-surface font-semibold">Riwayat Terbaru</h3>
+<button class="text-primary text-sm hover:underline font-body-sm text-body-sm">Detail</button>
+</div>
+<div class="p-2 flex-1">
+<div class="flex items-center justify-between p-3 hover:bg-surface-container-low rounded-lg transition-colors border-b border-surface-variant last:border-0">
+<div>
+<h4 class="font-title-sm text-title-sm text-on-surface mb-0.5">Matematika Diskrit</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs">10 Okt 2023</p>
+</div>
+<div class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-title-sm text-title-sm font-bold">
+                                        85
+                                    </div>
+</div>
+<div class="flex items-center justify-between p-3 hover:bg-surface-container-low rounded-lg transition-colors">
+<div>
+<h4 class="font-title-sm text-title-sm text-on-surface mb-0.5">Sistem Operasi</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs">05 Okt 2023</p>
+</div>
+<div class="px-3 py-1 bg-surface-container-high text-on-surface rounded-full font-title-sm text-title-sm font-bold">
+                                        78
+                                    </div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Right Column (Stats & Announcements) -->
+<div class="space-y-stack-lg">
+<!-- Stats Card -->
+<section class="bg-surface rounded-xl border border-outline-variant p-6 card-shadow text-center hover-shadow transition-shadow relative overflow-hidden">
+<!-- Subtle decorative background -->
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-xl"></div>
+<h3 class="font-title-sm text-title-sm text-on-surface-variant mb-6 relative z-10">Rata-rata Nilai Semester Ini</h3>
+<div class="relative inline-flex items-center justify-center w-32 h-32 mb-4 z-10">
+<!-- Circular Progress SVG placeholder -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle class="text-surface-container-highest stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-width="8"></circle>
+<circle class="text-primary stroke-current" cx="50" cy="50" fill="transparent" r="40" stroke-dasharray="251.2" stroke-dashoffset="45.2" stroke-linecap="round" stroke-width="8"></circle> <!-- 82% -->
+</svg>
+<div class="absolute flex flex-col items-center justify-center">
+<span class="font-display-lg text-display-lg text-on-surface">82</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant relative z-10">Dari 12 Ujian Terselesaikan</p>
+<div class="mt-6 pt-6 border-t border-outline-variant flex justify-around relative z-10">
+<div class="text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs mb-1">Tertinggi</p>
+<p class="font-title-sm text-title-sm text-on-surface font-semibold text-primary">95</p>
+</div>
+<div class="w-px bg-outline-variant"></div>
+<div class="text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant text-xs mb-1">Terendah</p>
+<p class="font-title-sm text-title-sm text-on-surface font-semibold text-on-surface-variant">68</p>
+</div>
+</div>
+</section>
+<!-- Announcements Card -->
+<section class="bg-surface rounded-xl border border-outline-variant card-shadow flex flex-col overflow-hidden hover-shadow transition-shadow">
+<div class="p-5 border-b border-outline-variant bg-surface-bright flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">campaign</span>
+<h3 class="font-title-sm text-title-sm text-on-surface font-semibold">Pengumuman Sekolah</h3>
+</div>
+<div class="p-5 space-y-4">
+<div class="group cursor-pointer">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 bg-primary/10 text-primary rounded text-[10px] font-bold uppercase tracking-wider">Penting</span>
+<span class="text-xs text-on-surface-variant">Hari ini</span>
+</div>
+<h4 class="font-title-sm text-title-sm text-on-surface group-hover:text-primary transition-colors leading-tight">Perubahan Jadwal PTS Ganjil 2023/2024</h4>
+</div>
+<div class="w-full h-px bg-outline-variant"></div>
+<div class="group cursor-pointer">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 bg-surface-container-high text-on-surface-variant rounded text-[10px] font-bold uppercase tracking-wider">Info</span>
+<span class="text-xs text-on-surface-variant">Kemarin</span>
+</div>
+<h4 class="font-title-sm text-title-sm text-on-surface group-hover:text-primary transition-colors leading-tight">Tata Tertib Peserta Ujian Berbasis Komputer</h4>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

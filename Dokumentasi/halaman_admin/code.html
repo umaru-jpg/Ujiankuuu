@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ujiankuuu - Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#131b2e",
+                    "on-secondary-container": "#54647a",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "tertiary-fixed-dim": "#bec6e0",
+                    "surface-dim": "#d9d9e5",
+                    "on-tertiary-fixed-variant": "#3f465c",
+                    "outline-variant": "#c3c6d7",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#d3e4fe",
+                    "surface-container-high": "#e7e7f3",
+                    "outline": "#737686",
+                    "on-secondary-fixed": "#0b1c30",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed-variant": "#38485d",
+                    "on-primary-fixed": "#00174b",
+                    "on-surface": "#191b23",
+                    "primary": "#004ac6",
+                    "surface-container": "#ededf9",
+                    "surface-variant": "#e1e2ed",
+                    "secondary-container": "#d0e1fb",
+                    "on-tertiary-container": "#eef0ff",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-on-surface": "#f0f0fb",
+                    "tertiary-container": "#656d84",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "surface-container-low": "#f3f3fe",
+                    "on-background": "#191b23",
+                    "surface-tint": "#0053db",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-bright": "#faf8ff",
+                    "tertiary-fixed": "#dae2fd",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-fixed-dim": "#b7c8e1",
+                    "on-primary-container": "#eeefff",
+                    "tertiary": "#4d556b",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#2563eb",
+                    "surface": "#faf8ff",
+                    "secondary": "#505f76",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#2e3039",
+                    "surface-container-highest": "#e1e2ed",
+                    "on-surface-variant": "#434655",
+                    "background": "#faf8ff",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "margin-mobile": "1rem",
+                    "stack-lg": "2rem",
+                    "stack-sm": "0.5rem",
+                    "margin-desktop": "2rem",
+                    "gutter": "1.5rem",
+                    "stack-md": "1rem"
+            },
+            "fontFamily": {
+                    "display-lg": [
+                            "Inter"
+                    ],
+                    "label-caps": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "title-sm": [
+                            "Inter"
+                    ],
+                    "display-lg-mobile": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "display-lg": [
+                            "36px",
+                            {
+                                    "lineHeight": "44px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "title-sm": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "34px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col fixed left-0 top-0 h-screen w-[260px] bg-surface dark:bg-inverse-surface border-r border-outline-variant dark:border-outline shadow-sm py-stack-lg z-50">
+<div class="px-6 mb-8 flex flex-col gap-2">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed tracking-tight">Ujiankuuu</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">SMK Jakarta Pusat 1</span>
+</div>
+<ul class="flex flex-col gap-2 px-3 flex-grow">
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary border-l-4 border-primary font-title-sm text-title-sm transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-low dark:hover:bg-surface-variant font-title-sm text-title-sm transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+                    Guru
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-low dark:hover:bg-surface-variant font-title-sm text-title-sm transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+                    Siswa
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-low dark:hover:bg-surface-variant font-title-sm text-title-sm transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">school</span>
+                    Kelas
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-low dark:hover:bg-surface-variant font-title-sm text-title-sm transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">quiz</span>
+                    Soal
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-low dark:hover:bg-surface-variant font-title-sm text-title-sm transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+                    Jadwal
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-low dark:hover:bg-surface-variant font-title-sm text-title-sm transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">assessment</span>
+                    Hasil
+                </a>
+</li>
+</ul>
+<div class="px-6 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 py-3 bg-primary-container text-on-primary rounded-lg font-title-sm text-title-sm hover:bg-primary transition-colors">
+<span class="material-symbols-outlined">help</span>
+                Bantuan
+            </button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-grow flex flex-col min-h-screen md:ml-[260px] w-full">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky z-40 bg-surface dark:bg-surface-container border-b border-outline-variant dark:border-outline shadow-sm flex justify-between items-center px-margin-desktop py-4 w-full">
+<!-- Mobile Brand (Hidden on Desktop, SideNav handles it) -->
+<div class="md:hidden flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-extrabold text-primary">Ujiankuuu</span>
+</div>
+<div class="flex items-center bg-surface-container-low rounded-lg px-3 py-2 w-full max-w-md hidden md:flex border border-outline-variant focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full font-body-sm text-body-sm text-on-surface ml-2 outline-none" placeholder="Cari siswa, guru, atau ujian..." type="text"/>
+</div>
+<div class="flex items-center gap-stack-md ml-auto">
+<button class="p-2 text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all rounded-full hover:bg-surface-container-low relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-all rounded-full hover:bg-surface-container-low hidden sm:block">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-6 w-px bg-outline-variant mx-2 hidden sm:block"></div>
+<button class="flex items-center gap-2 hover:bg-surface-container-low p-1 rounded-lg transition-colors">
+<img alt="Profile picture" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A small, professional portrait photograph of a school administrator in a high-key, modern minimalist setting, wearing a sharp navy blue suit. The lighting is soft and flattering. The color palette emphasizes clean whites, soft grays, and primary blue accents to match a professional SaaS dashboard aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPVSUJ37V3s17VuOpBoHCOkFoHpUzhgeRRvDnFp6RFIP2loOTyGJ70F0rHcklwErm62IN5B8ZXG-hc7hz47JxBW9w9m-aPdmqTm6QfTioI3SkFgEQMscrUfIzmtuHQrSJhU9wFL1R84oThmvRaaTIppwmtuwPW0QjhvPS8Do_KfXeCdtwjb8WZZQjUZB6PxYyVPHd2WsJiHayUoy_CfsT3umrRBQtu-leWXs8dRcsFhO8wdQppy2GWjQ"/>
+<span class="font-title-sm text-title-sm hidden sm:block">Profil Saya</span>
+<span class="material-symbols-outlined text-on-surface-variant hidden sm:block">expand_more</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Content -->
+<main class="flex-grow p-4 md:p-margin-desktop bg-[#F8FAFC]">
+<div class="max-w-[1280px] mx-auto">
+<!-- Welcome Banner -->
+<div class="mb-stack-lg">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">Selamat Datang, Admin</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Ringkasan aktivitas hari ini di SMK Jakarta Pusat 1.</p>
+</div>
+<!-- Bento Grid: Stats & Charts -->
+<div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6 mb-stack-lg">
+<!-- StatCards -->
+<div class="bg-surface rounded-xl p-4 shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex items-center justify-between mb-4">
+<span class="font-title-sm text-title-sm text-on-surface-variant">Total Guru</span>
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">person</span>
+</div>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface">45</div>
+</div>
+<div class="bg-surface rounded-xl p-4 shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex items-center justify-between mb-4">
+<span class="font-title-sm text-title-sm text-on-surface-variant">Total Siswa</span>
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">group</span>
+</div>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface">850</div>
+</div>
+<div class="bg-surface rounded-xl p-4 shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex items-center justify-between mb-4">
+<span class="font-title-sm text-title-sm text-on-surface-variant">Total Mapel</span>
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">menu_book</span>
+</div>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface">32</div>
+</div>
+<div class="bg-surface rounded-xl p-4 shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex items-center justify-between mb-4">
+<span class="font-title-sm text-title-sm text-on-surface-variant">Ujian Aktif</span>
+<div class="w-8 h-8 rounded-full bg-error/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-error text-sm">assignment</span>
+</div>
+</div>
+<div class="font-display-lg text-display-lg text-on-surface">5</div>
+</div>
+<!-- Charts Area -->
+<div class="col-span-1 md:col-span-2 lg:col-span-2 bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/30 flex flex-col">
+<h2 class="font-title-sm text-title-sm text-on-surface mb-4">Aktivitas Sistem (7 Hari Terakhir)</h2>
+<div class="flex-grow w-full relative min-h-[200px]">
+<canvas id="activityChart"></canvas>
+</div>
+</div>
+<div class="col-span-1 md:col-span-2 lg:col-span-2 bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/30 flex flex-col">
+<h2 class="font-title-sm text-title-sm text-on-surface mb-4">Rata-rata Nilai per Jurusan</h2>
+<div class="flex-grow w-full relative min-h-[200px]">
+<canvas id="scoreChart"></canvas>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Table & Activity List -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Table -->
+<div class="col-span-1 lg:col-span-2 bg-surface rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col">
+<div class="p-6 border-b border-outline-variant/30 flex justify-between items-center">
+<h2 class="font-title-sm text-title-sm text-on-surface">Jadwal Ujian Terbaru</h2>
+<button class="text-primary font-label-caps text-label-caps hover:underline">Lihat Semua</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead class="bg-[#F8FAFC] text-on-surface-variant border-b border-outline-variant/30">
+<tr>
+<th class="px-6 py-4 font-semibold">Mata Pelajaran</th>
+<th class="px-6 py-4 font-semibold">Kelas</th>
+<th class="px-6 py-4 font-semibold">Waktu</th>
+<th class="px-6 py-4 font-semibold">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant/10 hover:bg-[#F8FAFC] transition-colors">
+<td class="px-6 py-4 font-medium text-on-surface">Matematika Dasar</td>
+<td class="px-6 py-4 text-on-surface-variant">X RPL 1</td>
+<td class="px-6 py-4 text-on-surface-variant">08:00 - 10:00</td>
+<td class="px-6 py-4"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-secondary-container text-on-secondary-container">Aktif</span></td>
+</tr>
+<tr class="border-b border-outline-variant/10 hover:bg-[#F8FAFC] transition-colors">
+<td class="px-6 py-4 font-medium text-on-surface">Bahasa Indonesia</td>
+<td class="px-6 py-4 text-on-surface-variant">XI TKJ 2</td>
+<td class="px-6 py-4 text-on-surface-variant">10:30 - 12:00</td>
+<td class="px-6 py-4"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-surface-variant text-on-surface-variant">Selesai</span></td>
+</tr>
+<tr class="hover:bg-[#F8FAFC] transition-colors">
+<td class="px-6 py-4 font-medium text-on-surface">Pemrograman Web</td>
+<td class="px-6 py-4 text-on-surface-variant">XII RPL</td>
+<td class="px-6 py-4 text-on-surface-variant">13:00 - 15:00</td>
+<td class="px-6 py-4"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-fixed text-on-primary-fixed">Besok</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Activity List -->
+<div class="col-span-1 bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/30 flex flex-col">
+<h2 class="font-title-sm text-title-sm text-on-surface mb-6">Aktivitas Terbaru</h2>
+<div class="flex flex-col gap-6 relative before:absolute before:inset-0 before:ml-[15px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-outline-variant/30 before:to-transparent">
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border-2 border-surface bg-primary text-on-primary shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
+<span class="material-symbols-outlined text-[16px]">done</span>
+</div>
+<div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-surface p-3 rounded-lg border border-outline-variant/30 shadow-sm ml-4 md:ml-0">
+<p class="font-title-sm text-sm text-on-surface">Ujian MTK Selesai</p>
+<p class="font-body-sm text-xs text-on-surface-variant mt-1">Kelas X RPL 1</p>
+</div>
+</div>
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border-2 border-surface bg-surface-variant text-on-surface-variant shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
+<span class="material-symbols-outlined text-[16px]">upload_file</span>
+</div>
+<div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-3 ml-4 md:ml-0">
+<p class="font-title-sm text-sm text-on-surface">Soal Baru Diunggah</p>
+<p class="font-body-sm text-xs text-on-surface-variant mt-1">Oleh Bpk. Budi</p>
+</div>
+</div>
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-8 h-8 rounded-full border-2 border-surface bg-surface-variant text-on-surface-variant shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm z-10">
+<span class="material-symbols-outlined text-[16px]">person_add</span>
+</div>
+<div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-3 ml-4 md:ml-0">
+<p class="font-title-sm text-sm text-on-surface">5 Siswa Baru</p>
+<p class="font-body-sm text-xs text-on-surface-variant mt-1">Sistem diupdate</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script>
+        // Chart.js Configuration
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctxActivity = document.getElementById('activityChart').getContext('2d');
+            new Chart(ctxActivity, {
+                type: 'line',
+                data: {
+                    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
+                    datasets: [{
+                        label: 'Login Harian',
+                        data: [150, 230, 180, 290, 200, 50, 40],
+                        borderColor: '#2563eb', // Primary Blue
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            const ctxScore = document.getElementById('scoreChart').getContext('2d');
+            new Chart(ctxScore, {
+                type: 'bar',
+                data: {
+                    labels: ['RPL', 'TKJ', 'MM', 'AK', 'AP'],
+                    datasets: [{
+                        label: 'Rata-rata Nilai',
+                        data: [82, 78, 85, 80, 75],
+                        backgroundColor: '#2563eb',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, max: 100, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        });
+    </script>
+</body></html>

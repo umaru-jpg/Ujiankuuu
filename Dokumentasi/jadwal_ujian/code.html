@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jadwal Ujian - Ujiankuuu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#131b2e",
+                        "on-secondary-container": "#54647a",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "surface-dim": "#d9d9e5",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "outline-variant": "#c3c6d7",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#d3e4fe",
+                        "surface-container-high": "#e7e7f3",
+                        "outline": "#737686",
+                        "on-secondary-fixed": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface": "#191b23",
+                        "primary": "#004ac6",
+                        "surface-container": "#ededf9",
+                        "surface-variant": "#e1e2ed",
+                        "secondary-container": "#d0e1fb",
+                        "on-tertiary-container": "#eef0ff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "tertiary-container": "#656d84",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-container-low": "#f3f3fe",
+                        "on-background": "#191b23",
+                        "surface-tint": "#0053db",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-bright": "#faf8ff",
+                        "tertiary-fixed": "#dae2fd",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "on-primary-container": "#eeefff",
+                        "tertiary": "#4d556b",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#2563eb",
+                        "surface": "#faf8ff",
+                        "secondary": "#505f76",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2e3039",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-surface-variant": "#434655",
+                        "background": "#faf8ff",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin-mobile": "1rem",
+                        "stack-lg": "2rem",
+                        "stack-sm": "0.5rem",
+                        "margin-desktop": "2rem",
+                        "gutter": "1.5rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "title-sm": ["Inter"],
+                        "display-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-sm": ["18px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg-mobile": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased font-body-md">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-full py-stack-lg bg-surface border-r border-outline-variant shadow-sm fixed left-0 top-0 h-screen w-[260px] z-50">
+<div class="px-gutter mb-stack-lg flex flex-col gap-stack-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Ujiankuuu</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">SMK Jakarta Pusat 1</p>
+</div>
+<ul class="flex-1 flex flex-col gap-stack-sm px-gutter">
+<li>
+<a class="flex items-center gap-stack-sm p-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-title-sm text-title-sm">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-sm p-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-title-sm text-title-sm">Guru</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-sm p-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-title-sm text-title-sm">Siswa</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-sm p-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-title-sm text-title-sm">Kelas</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-sm p-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="quiz">quiz</span>
+<span class="font-title-sm text-title-sm">Soal</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-sm p-3 rounded-lg bg-secondary-container text-on-secondary-container border-l-4 border-primary transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined fill" data-icon="calendar_today" data-weight="fill">calendar_today</span>
+<span class="font-title-sm text-title-sm font-semibold">Jadwal</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-stack-sm p-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+<span class="font-title-sm text-title-sm">Hasil</span>
+</a>
+</li>
+</ul>
+<div class="px-gutter mt-auto">
+<button class="w-full flex items-center justify-center gap-2 p-3 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-low transition-colors font-title-sm text-title-sm">
+<span class="material-symbols-outlined">help</span>
+                Bantuan
+            </button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="md:ml-[260px] min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface shadow-sm docked full-width top-0 sticky z-40">
+<div class="flex justify-between items-center px-margin-desktop py-4 w-full mx-auto max-w-container-max">
+<div class="flex items-center gap-stack-md flex-1">
+<div class="relative w-full max-w-md hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface transition-all font-body-sm text-body-sm text-on-surface" placeholder="Cari jadwal, mapel, atau kelas..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all rounded-full hover:bg-surface-container-low hidden sm:block">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<div class="h-8 w-px bg-outline-variant mx-2 hidden sm:block"></div>
+<button class="flex items-center gap-2 hover:bg-surface-container-low p-1 pr-3 rounded-full transition-colors border border-transparent hover:border-outline-variant">
+<img alt="Profile picture" class="w-8 h-8 rounded-full object-cover" data-alt="A professional headshot of an Indonesian teacher, male, mid-30s, wearing glasses and a neat button-down shirt. The lighting is soft and natural, evoking a calm and reliable administrative environment. The background is a slightly blurred modern school office setting with light blue and grey tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvgETfNIXVfaejvHf3Nr88UhKoqT66xfo278xzmr8QZoX9ECZ0ABNeA7S5N6nv97pszvRnocMdL6iW78AwLN2rhtXIzRBQ71EDUWe6vx7s6MOtwaEq9sD051N0Qs_Wbdl77bP6Qd8Iwsz8J7yd2y8O1IXq2cfHXRYcO0uphP4r_eV6vfxn4pDGh-JowZwfl4uKKepGCgBeM9g1VkNa6-p2bMTnbPAnVA5gEyllhRVTAD0j4F5vFyJfqg"/>
+<span class="font-title-sm text-title-sm text-on-surface hidden sm:block">Profil Saya</span>
+<span class="material-symbols-outlined text-on-surface-variant hidden sm:block">expand_more</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full">
+<!-- Header Section -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-stack-lg">
+<div>
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">Jadwal Ujian</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Kelola jadwal ujian, alokasi waktu, dan pengawas.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex bg-surface-container-low rounded-lg p-1 border border-outline-variant">
+<button class="px-4 py-2 rounded-md bg-surface shadow-sm font-title-sm text-title-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">calendar_view_month</span>
+<span class="hidden sm:inline">Kalender</span>
+</button>
+<button class="px-4 py-2 rounded-md hover:bg-surface-variant transition-colors font-title-sm text-title-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">view_list</span>
+<span class="hidden sm:inline">Daftar</span>
+</button>
+</div>
+<button class="bg-primary-container text-on-primary hover:bg-primary-fixed-variant transition-colors px-6 py-2 rounded-lg font-title-sm text-title-sm font-semibold flex items-center gap-2 min-h-[44px]">
+<span class="material-symbols-outlined">add</span>
+                        Tambah Jadwal
+                    </button>
+</div>
+</div>
+<!-- Content Area - List View (Default) -->
+<div class="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+<!-- Filters -->
+<div class="p-4 border-b border-outline-variant bg-surface-bright flex flex-wrap gap-4 items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">filter_list</span>
+<span class="font-title-sm text-title-sm text-on-surface">Filter:</span>
+</div>
+<select class="bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary">
+<option>Semua Kelas</option>
+<option>Kelas X</option>
+<option>Kelas XI</option>
+<option>Kelas XII</option>
+</select>
+<select class="bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary">
+<option>Semua Mapel</option>
+<option>Matematika</option>
+<option>Bahasa Indonesia</option>
+<option>Kejuruan RPL</option>
+</select>
+<div class="flex-1"></div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Menampilkan 4 jadwal aktif minggu ini</span>
+</div>
+<!-- List Items -->
+<div class="divide-y divide-outline-variant">
+<!-- Item 1 -->
+<div class="p-4 hover:bg-surface-container-low transition-colors group">
+<div class="flex flex-col md:flex-row gap-4 md:items-center">
+<!-- Date & Time (Left) -->
+<div class="min-w-[150px] flex flex-row md:flex-col gap-2 md:gap-1 items-start md:items-center justify-between md:justify-center p-3 bg-surface-bright border border-outline-variant rounded-lg">
+<div class="text-center">
+<div class="font-label-caps text-label-caps text-primary uppercase">Senin</div>
+<div class="font-headline-md text-headline-md text-on-surface">14 Okt</div>
+</div>
+<div class="h-8 w-px bg-outline-variant hidden md:block my-1"></div>
+<div class="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant font-medium">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                                    08:00 - 10:00
+                                </div>
+</div>
+<!-- Details (Middle) -->
+<div class="flex-1 flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-secondary-fixed text-on-secondary-fixed rounded text-[12px] font-semibold uppercase tracking-wider">PTS Ganjil</span>
+<h3 class="font-title-sm text-title-sm text-on-surface font-bold text-lg">Matematika Lanjut</h3>
+</div>
+<div class="flex flex-wrap gap-4 mt-1">
+<div class="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">school</span>
+<span>Kelas XII RPL 1, XII RPL 2</span>
+</div>
+<div class="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">meeting_room</span>
+<span>Lab Komputer A &amp; B</span>
+</div>
+</div>
+<div class="flex items-center gap-2 mt-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant">PENGAWAS:</span>
+<div class="flex -space-x-2">
+<img alt="Pengawas 1" class="w-7 h-7 rounded-full border-2 border-surface object-cover" data-alt="A portrait of a female Indonesian teacher in her 40s wearing a hijab and standard school uniform, smiling warmly. Professional lighting, clear background, high resolution, suitable for a professional dashboard avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4XBPKeIEOt4ZfYdkGDO_mMYZnzXWmhVSm7A8fYwwc6WJnzbcrC9k-6VE0yGvDzomYyieG_kBOOpcHoN7cWjYmN7Q6VoQ2bVtHK5aq_RZjcAM-ZOo39u_YIvkW-Z77yiEVvwAikar8SRBb2lSpRHUYuzC6W-6zg0pnysb8uvmXpVlAaeqI7s4Jq7mNBdKwkald_O6lMHWuEbITFr9O2C-kYFCLyRu9N-tXERJ7W1YEnjpIx2o3jnlTCg"/>
+<img alt="Pengawas 2" class="w-7 h-7 rounded-full border-2 border-surface object-cover" data-alt="A portrait of a male Indonesian teacher in his 50s with short hair, wearing glasses and a formal batik shirt. Professional lighting, clear background, high resolution, suitable for a professional dashboard avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDl_-VStenrU_ZUVlqr_deekl3GBgCVfPnZwLlz6hx2xq2aykr7kR0r9j9B8S_iZkfUoXIla8EI-5Rm2NL6mpz7GCywja89hBazkxCMRLBAahd88TUOPuVlW8qfNBDqnCm8NOBAdtzZId7zFwE89Z1INVuG_eg_gxA9mEQk0W4nlDvQnUs1H0pfQYasqdqYb5u1Mnk1aOf97ZpNg4D7F4gsHsWjZF0s6URt2meLNaUNucTd1S0XOfP3w"/>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface ml-1">Bpk. Budi S., Ibu Siti A.</span>
+</div>
+</div>
+<!-- Actions (Right) -->
+<div class="flex flex-row md:flex-col gap-2 mt-4 md:mt-0 justify-end">
+<button class="px-4 py-2 border border-outline-variant rounded-lg font-title-sm text-title-sm text-primary hover:bg-surface-container-low transition-colors w-full md:w-auto text-center">
+                                    Edit
+                                </button>
+<button class="p-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-error hover:border-error hover:bg-error-container transition-colors hidden md:block">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

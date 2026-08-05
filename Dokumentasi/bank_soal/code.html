@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bank Soal - Ujiankuuu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#131b2e",
+                        "on-secondary-container": "#54647a",
+                        "on-error": "#ffffff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "surface-dim": "#d9d9e5",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "outline-variant": "#c3c6d7",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#d3e4fe",
+                        "surface-container-high": "#e7e7f3",
+                        "outline": "#737686",
+                        "on-secondary-fixed": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "on-primary-fixed": "#00174b",
+                        "on-surface": "#191b23",
+                        "primary": "#004ac6",
+                        "surface-container": "#ededf9",
+                        "surface-variant": "#e1e2ed",
+                        "secondary-container": "#d0e1fb",
+                        "on-tertiary-container": "#eef0ff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "tertiary-container": "#656d84",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-container-low": "#f3f3fe",
+                        "on-background": "#191b23",
+                        "surface-tint": "#0053db",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-bright": "#faf8ff",
+                        "tertiary-fixed": "#dae2fd",
+                        "primary-fixed": "#dbe1ff",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "on-primary-container": "#eeefff",
+                        "tertiary": "#4d556b",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#2563eb",
+                        "surface": "#faf8ff",
+                        "secondary": "#505f76",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2e3039",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-surface-variant": "#434655",
+                        "background": "#faf8ff",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin-mobile": "1rem",
+                        "stack-lg": "2rem",
+                        "stack-sm": "0.5rem",
+                        "margin-desktop": "2rem",
+                        "gutter": "1.5rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter", "sans-serif"],
+                        "label-caps": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter", "sans-serif"],
+                        "body-sm": ["Inter", "sans-serif"],
+                        "title-sm": ["Inter", "sans-serif"],
+                        "display-lg-mobile": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-sm": ["18px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg-mobile": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen overflow-x-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-[260px] bg-surface border-r border-outline-variant shadow-sm z-50 flex flex-col py-stack-lg hidden md:flex">
+<div class="px-margin-desktop mb-stack-lg">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Ujiankuuu</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">SMK Jakarta Pusat 1</p>
+</div>
+<ul class="flex-1 flex flex-col gap-1 px-4">
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+<span class="font-title-sm text-title-sm">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-title-sm text-title-sm">Guru</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">group</span>
+<span class="font-title-sm text-title-sm">Siswa</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">school</span>
+<span class="font-title-sm text-title-sm">Kelas</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-secondary-container text-on-secondary-container border-l-4 border-primary cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">quiz</span>
+<span class="font-title-sm text-title-sm">Soal</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">calendar_today</span>
+<span class="font-title-sm text-title-sm">Jadwal</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">assessment</span>
+<span class="font-title-sm text-title-sm">Hasil</span>
+</a>
+</li>
+</ul>
+<div class="px-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 py-3 bg-surface-container text-on-surface rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[20px]">help</span>
+<span class="font-title-sm text-title-sm">Bantuan</span>
+</button>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky z-40 bg-surface shadow-sm border-b border-outline-variant flex justify-between items-center px-margin-desktop py-4 w-full md:ml-[260px] md:max-w-[calc(100%-260px)]">
+<div class="flex-1 max-w-md hidden md:block">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-sm text-body-sm transition-colors" placeholder="Cari soal..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-stack-md ml-auto">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-all rounded-full hover:bg-surface-container-low hidden md:block">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="flex items-center gap-3 border-l border-outline-variant pl-4 ml-2 cursor-pointer group">
+<img alt="Profile picture" class="w-8 h-8 rounded-full object-cover border border-outline-variant group-hover:border-primary transition-colors" data-alt="A professional headshot of an Indonesian male teacher in his 40s wearing a neat batik shirt, smiling warmly against a clean white background in a well-lit studio. Professional lighting, modern light-mode educational platform aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZJnjSd7tvxRy_fw962AVSsXLZzY_uSHUmggYAVnHBGAMYpOO7aBAPHM_3l4Gm_ZfSJ1TbGfgaxyYnYmv7TMNsD-bWFaNpy00YWs_zQsdq0zNec2o35tCeJ7cBOzjC-vkWwPQvGOQoupUgeOiRZDQsGbro2JmV5sjON0mw7QRl7DonVY4ShKzmJ9vq2iQShi-pMGF1g6nPBwGqbYHiEQ9sTK7om3Gi-4DFPC5PM6F8xv4zlqsHOblWOQ"/>
+<span class="font-body-sm text-body-sm font-medium text-on-surface group-hover:text-primary transition-colors hidden md:block">Profil Saya</span>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="md:ml-[260px] p-margin-mobile md:p-margin-desktop min-h-screen pb-24">
+<div class="max-w-container-max mx-auto">
+<!-- Page Header & Actions -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-stack-lg">
+<div>
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Manajemen Bank Soal</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Kelola, filter, dan buat soal ujian baru untuk berbagai mata pelajaran.</p>
+</div>
+<button class="bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors px-6 py-3 rounded-lg font-title-sm text-title-sm flex items-center gap-2 shadow-sm whitespace-nowrap min-h-[44px]">
+<span class="material-symbols-outlined">add</span>
+                    Buat Soal Baru
+                </button>
+</div>
+<!-- Filters -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-sm mb-stack-lg flex flex-col md:flex-row gap-4">
+<div class="flex-1">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">MATA PELAJARAN</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-on-surface">
+<option>Semua Mata Pelajaran</option>
+<option>Matematika</option>
+<option>Bahasa Indonesia</option>
+<option>Bahasa Inggris</option>
+<option>Fisika</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex-1">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">KELAS</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-on-surface">
+<option>Semua Kelas</option>
+<option>Kelas 10</option>
+<option>Kelas 11</option>
+<option>Kelas 12</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex-1">
+<label class="block font-label-caps text-label-caps text-on-surface-variant mb-2">STATUS</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-on-surface">
+<option>Semua Status</option>
+<option>Published</option>
+<option>Draft</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid List of Questions -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative group">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps">
+                                MATEMATIKA
+                            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface font-label-caps text-label-caps">
+                                KELAS 12
+                            </span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-green-100 text-green-800 font-label-caps text-label-caps border border-green-200">
+                            PUBLISHED
+                        </span>
+</div>
+<h3 class="font-title-sm text-title-sm text-on-surface mb-2 line-clamp-2">Berapa hasil turunan pertama dari fungsi f(x) = 3x^3 - 2x^2 + 5x - 1?</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">radio_button_checked</span>
+                        Pilihan Ganda
+                    </p>
+<div class="flex items-center justify-between pt-4 border-t border-outline-variant/50 mt-auto">
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-surface object-cover" data-alt="A small circular avatar of a young female teacher in a smart casual outfit, neutral background, modern light-mode style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaZlT7AWqAafEArS8RKE0GXLS61MXW2S44ebZ8uBIFSj4nczIHnrXJZIk-Y9ZVo9mkz3UbUt2I8-biGU7LFSHn7Y5_YYDaYaor9wZtUqiRft23ufwqq15Aq3o8OMynvJ5MrYnSexSnhvJa12qX9N27DvuX0ULQXXIwyeAok8lxY4fj3yNt6vUbhMTx4-wOQfPhQsXQN7zm3ok8rNytnpI9vkndmhOHvU_XOVbU8Be6OgJ-JKEK8EhT1g"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-4">Bu Rina S.</span>
+</div>
+<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-error hover:bg-error-container/20 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative group">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps">
+                                B. INDONESIA
+                            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface font-label-caps text-label-caps">
+                                KELAS 11
+                            </span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-highest text-on-surface-variant font-label-caps text-label-caps border border-outline-variant">
+                            DRAFT
+                        </span>
+</div>
+<h3 class="font-title-sm text-title-sm text-on-surface mb-2 line-clamp-2">Jelaskan perbedaan mendasar antara teks prosedur kompleks dan teks eksplanasi beserta contohnya!</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">subject</span>
+                        Essay
+                    </p>
+<div class="flex items-center justify-between pt-4 border-t border-outline-variant/50 mt-auto">
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-surface object-cover" data-alt="A small circular avatar of an older male teacher with glasses, professional attire, neutral background, modern light-mode style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6iWUk34VGBUsdFbEik6LTVeQhv9CwzawkJHGfGo3HiVdSNzLe2FpwrLiW2N85r1JzWG8aZ89SvgN618ktD8qQTZj1SnxRT4YEqGXCG-rwtCBnPLkBfDi7-8Zde5AgRMoUreadXkB9xyR5eXjeFtROyqCS8IWzVOO0Ei06EyeeqYWqVr2MYeSTHx7bbCg1MvzmkCQPZj_OGw3RZHeQ1c3MRQtddl3d1rU75PiV1BX8TfTSnru-0yUQGw"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-4">Pak Budi H.</span>
+</div>
+<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-error hover:bg-error-container/20 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative group">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps">
+                                FISIKA
+                            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface font-label-caps text-label-caps">
+                                KELAS 10
+                            </span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-green-100 text-green-800 font-label-caps text-label-caps border border-green-200">
+                            PUBLISHED
+                        </span>
+</div>
+<h3 class="font-title-sm text-title-sm text-on-surface mb-2 line-clamp-2">Sebuah benda jatuh bebas dari ketinggian 20 m. Jika g = 10 m/s², kecepatan benda saat mencapai tanah adalah...</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">radio_button_checked</span>
+                        Pilihan Ganda
+                    </p>
+<div class="flex items-center justify-between pt-4 border-t border-outline-variant/50 mt-auto">
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-surface object-cover" data-alt="A small circular avatar of a young female teacher in a smart casual outfit, neutral background, modern light-mode style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkFVIOIsX0iU8ztEORWO1eJCKkm9q9wMLQIaB9Qz-QYMEsgFk1s2nu8BuWTRA7S7y0PIgMyhz03b6LFb8vMpr_0FGFzRpWazkiR3CS7TWKamlk6cEmu0MuJ0Xm9dNsCffdi-0um2YfpsSiyqrXaUt_Yb_aknvHCE_axPZfqbP2SInj_8yPSrz5c-orCRFCmEMxd-NSNk3Tn68-NKxOfzGo02ttJoYt_AnUaXpvRN7gZBzqbDrmXKNsNA"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-4">Bu Rina S.</span>
+</div>
+<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-error hover:bg-error-container/20 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative group">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps">
+                                B. INGGRIS
+                            </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface font-label-caps text-label-caps">
+                                KELAS 12
+                            </span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-highest text-on-surface-variant font-label-caps text-label-caps border border-outline-variant">
+                            DRAFT
+                        </span>
+</div>
+<h3 class="font-title-sm text-title-sm text-on-surface mb-2 line-clamp-2">Read the passage carefully and identify the main idea of the second paragraph.</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">subject</span>
+                        Essay
+                    </p>
+<div class="flex items-center justify-between pt-4 border-t border-outline-variant/50 mt-auto">
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-surface object-cover" data-alt="A small circular avatar of an older female teacher, professional attire, neutral background, modern light-mode style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7AuVCkwjz5tzQm2biH421DXHvzYe1TtdO0ZsiX_2T2U9NK2giupABiqI-FhaaMkJsD-kvhmAor5bV04YyeP16wYGHccMBRWbMI5c1lbw_uj3hzvWocPnKxsW4HHz3BHQeGfBq7pt3lLrhy5JzmklsGo1OM1KyN3nsAwKCR_ySlWfSdCnaFtRP5x61Y_MjugzHiPqqDfLOX7CDs2aynNMZtUbLr87r7jD9cN0GG0XljmdB6Tks7ngXvQ"/>
+<span class="font-body-sm text-body-sm text-on-surface-variant ml-4">Mrs. Anita W.</span>
+</div>
+<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-secondary hover:text-primary hover:bg-surface-container rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="p-1.5 text-secondary hover:text-error hover:bg-error-container/20 rounded-md transition-colors">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination (Simple) -->
+<div class="flex items-center justify-center gap-2 mt-stack-lg">
+<button class="p-2 border border-outline-variant rounded-md text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-md bg-primary text-on-primary font-title-sm text-title-sm">1</button>
+<button class="w-10 h-10 rounded-md border border-outline-variant text-on-surface hover:bg-surface-container transition-colors font-title-sm text-title-sm">2</button>
+<button class="w-10 h-10 rounded-md border border-outline-variant text-on-surface hover:bg-surface-container transition-colors font-title-sm text-title-sm">3</button>
+<span class="text-on-surface-variant px-2">...</span>
+<button class="p-2 border border-outline-variant rounded-md text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>

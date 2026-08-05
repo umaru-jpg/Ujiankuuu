@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hasil Ujian - Ujiankuuu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#131b2e",
+                      "on-secondary-container": "#54647a",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "tertiary-fixed-dim": "#bec6e0",
+                      "surface-dim": "#d9d9e5",
+                      "on-tertiary-fixed-variant": "#3f465c",
+                      "outline-variant": "#c3c6d7",
+                      "error": "#ba1a1a",
+                      "secondary-fixed": "#d3e4fe",
+                      "surface-container-high": "#e7e7f3",
+                      "outline": "#737686",
+                      "on-secondary-fixed": "#0b1c30",
+                      "on-primary": "#ffffff",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "on-primary-fixed": "#00174b",
+                      "on-surface": "#191b23",
+                      "primary": "#004ac6",
+                      "surface-container": "#ededf9",
+                      "surface-variant": "#e1e2ed",
+                      "secondary-container": "#d0e1fb",
+                      "on-tertiary-container": "#eef0ff",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-on-surface": "#f0f0fb",
+                      "tertiary-container": "#656d84",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "surface-container-low": "#f3f3fe",
+                      "on-background": "#191b23",
+                      "surface-tint": "#0053db",
+                      "inverse-primary": "#b4c5ff",
+                      "surface-bright": "#faf8ff",
+                      "tertiary-fixed": "#dae2fd",
+                      "primary-fixed": "#dbe1ff",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "on-primary-container": "#eeefff",
+                      "tertiary": "#4d556b",
+                      "error-container": "#ffdad6",
+                      "primary-container": "#2563eb",
+                      "surface": "#faf8ff",
+                      "secondary": "#505f76",
+                      "on-error-container": "#93000a",
+                      "inverse-surface": "#2e3039",
+                      "surface-container-highest": "#e1e2ed",
+                      "on-surface-variant": "#434655",
+                      "background": "#faf8ff",
+                      "on-secondary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "margin-mobile": "1rem",
+                      "stack-lg": "2rem",
+                      "stack-sm": "0.5rem",
+                      "margin-desktop": "2rem",
+                      "gutter": "1.5rem",
+                      "stack-md": "1rem"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"],
+                      "label-caps": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "title-sm": ["Inter"],
+                      "display-lg-mobile": ["Inter"]
+              },
+              "fontSize": {
+                      "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "title-sm": ["18px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "display-lg-mobile": ["28px", {"lineHeight": "34px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .chart-bar {
+            transition: height 1s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md flex min-h-screen">
+<!-- SideNavBar (Shared Component) -->
+<nav class="bg-surface dark:bg-inverse-surface text-primary dark:text-primary-fixed font-body-md text-body-md fixed left-0 top-0 h-screen w-[260px] border-r border-outline-variant dark:border-outline shadow-sm flex flex-col h-full py-stack-lg hidden md:flex z-50">
+<!-- Brand / Header -->
+<div class="px-margin-desktop mb-stack-lg">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
+                    U
+                </div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Ujiankuuu</h1>
+<p class="font-label-caps text-label-caps text-secondary">SMK Jakarta Pusat 1</p>
+</div>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<ul class="flex flex-col gap-1 px-4 flex-grow">
+<!-- Dashboard -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-high hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+</li>
+<!-- Guru -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-high hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span>Guru</span>
+</a>
+</li>
+<!-- Siswa -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-high hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Siswa</span>
+</a>
+</li>
+<!-- Kelas -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-high hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">school</span>
+<span>Kelas</span>
+</a>
+</li>
+<!-- Soal -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-high hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">quiz</span>
+<span>Soal</span>
+</a>
+</li>
+<!-- Jadwal -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary dark:text-secondary-fixed hover:bg-surface-container-high hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span>Jadwal</span>
+</a>
+</li>
+<!-- Hasil (ACTIVE) -->
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary border-l-4 border-primary hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors cursor-pointer active:scale-95 duration-200" href="#">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">assessment</span>
+<span class="font-bold">Hasil</span>
+</a>
+</li>
+</ul>
+<!-- CTA -->
+<div class="px-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-surface-variant text-on-surface hover:bg-surface-container-high transition-colors font-title-sm text-title-sm">
+<span class="material-symbols-outlined">help_outline</span>
+                Bantuan
+            </button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col min-h-screen md:ml-[260px] w-full">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-surface dark:bg-surface-container text-primary dark:text-primary-fixed font-body-sm text-body-sm docked full-width top-0 sticky z-40 border-b border-outline-variant dark:border-outline shadow-sm flex justify-between items-center px-margin-desktop py-4 w-full">
+<!-- Mobile Menu Trigger & Brand (Visible on mobile) -->
+<div class="flex items-center gap-3 md:hidden">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="font-headline-md text-headline-md font-extrabold text-primary">Ujiankuuu</span>
+</div>
+<!-- Desktop Search (Empty spacer for alignment based on config "search_bar": "on_left") -->
+<div class="hidden md:flex flex-1">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2 rounded-full bg-surface-container-high border-none focus:ring-2 focus:ring-primary text-body-sm outline-none" placeholder="Cari..." type="text"/>
+</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-stack-md">
+<button class="text-on-surface-variant hover:text-primary transition-all relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-all hidden md:block">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-6 w-px bg-outline-variant hidden md:block mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer group">
+<img alt="Profile picture" class="w-8 h-8 rounded-full object-cover border border-outline-variant group-hover:border-primary transition-colors" data-alt="A professional headshot of a high school student in a neat white uniform, smiling subtly against a soft, bright white studio background. The lighting is high-key and flattering, emphasizing a clean, optimistic, and academic mood appropriate for a modern education platform profile picture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBknM9a_AcVrI9Urwz_-sWcyk_6Z03tCFxiIgsvymTVrxaj2khtaG-hgwgE8Qe_TdTHcbWAY_NLO84luunAIESikLdLNAQgG7WyourSwMLDgqoChG53BxiUzgaaNMnBTaiEQGXIYlLkTmQ8Hs3aiI4CWVY6EcWIoHv65OKRLzPxcMuWDlldvklehBu8ic5RtOhPFOPjElBK_hZVjfuOEooUSDvL3_FQ2w2rwWr957FhRi_o11LnLGi0Tg"/>
+<span class="text-on-surface font-title-sm text-title-sm hidden md:block group-hover:text-primary transition-colors">Profil Saya</span>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<main class="flex-1 p-margin-mobile md:p-margin-desktop bg-surface-container-low overflow-y-auto">
+<div class="max-w-[800px] mx-auto space-y-stack-lg mt-stack-md">
+<!-- Hero Section / Celebration -->
+<div class="text-center space-y-2">
+<h2 class="font-display-lg text-display-lg text-on-surface">Ujian Selesai!</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Kerja bagus! Berikut adalah hasil dari evaluasi Anda hari ini.</p>
+</div>
+<!-- Bento Grid for Results -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Main Score Card -->
+<div class="md:col-span-1 bg-surface rounded-xl p-stack-lg shadow-sm border border-outline-variant flex flex-col items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary-container/10 to-transparent pointer-events-none"></div>
+<p class="font-title-sm text-title-sm text-on-surface-variant mb-6 relative z-10">Nilai Akhir</p>
+<!-- Circular Score Display -->
+<div class="w-40 h-40 rounded-full border-[12px] border-primary flex flex-col items-center justify-center bg-surface relative z-10 shadow-inner">
+<span class="font-display-lg text-display-lg text-primary leading-none">85</span>
+<span class="font-label-caps text-label-caps text-outline mt-1">/ 100</span>
+</div>
+<!-- Status Badge (LULUS) using primary color to signify positive outcome while respecting theme -->
+<div class="mt-8 px-6 py-2 rounded-full bg-primary text-on-primary font-title-sm text-title-sm shadow-sm relative z-10 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+                            LULUS
+                        </div>
+</div>
+<!-- Stats & Chart Area -->
+<div class="md:col-span-2 flex flex-col gap-gutter">
+<!-- Quick Stats -->
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+<!-- Correct -->
+<div class="bg-surface rounded-xl p-4 border border-outline-variant shadow-sm flex items-start gap-3">
+<div class="p-2 rounded-lg bg-surface-container text-primary">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Benar</p>
+<p class="font-headline-md text-headline-md text-on-surface">42 <span class="font-body-sm text-body-sm text-outline font-normal">soal</span></p>
+</div>
+</div>
+<!-- Incorrect -->
+<div class="bg-surface rounded-xl p-4 border border-outline-variant shadow-sm flex items-start gap-3">
+<div class="p-2 rounded-lg bg-error-container text-on-error-container">
+<span class="material-symbols-outlined">cancel</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Salah</p>
+<p class="font-headline-md text-headline-md text-on-surface">8 <span class="font-body-sm text-body-sm text-outline font-normal">soal</span></p>
+</div>
+</div>
+<!-- Duration -->
+<div class="bg-surface rounded-xl p-4 border border-outline-variant shadow-sm flex items-start gap-3 col-span-2 sm:col-span-1">
+<div class="p-2 rounded-lg bg-secondary-container text-on-secondary-container">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Waktu</p>
+<p class="font-headline-md text-headline-md text-on-surface">45<span class="font-body-sm text-body-sm text-outline font-normal">m</span> 12<span class="font-body-sm text-body-sm text-outline font-normal">s</span></p>
+</div>
+</div>
+</div>
+<!-- Performance Chart (Simulated) -->
+<div class="bg-surface rounded-xl p-stack-md border border-outline-variant shadow-sm flex-1 flex flex-col">
+<h3 class="font-title-sm text-title-sm text-on-surface mb-4">Performa per Topik</h3>
+<div class="flex-1 flex items-end gap-2 mt-auto h-32 pt-4">
+<!-- Bar 1 -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-surface-container rounded-t-sm relative flex items-end justify-center">
+<div class="w-full bg-primary rounded-t-sm chart-bar opacity-80 group-hover:opacity-100 transition-opacity" style="height: 90%;"></div>
+<span class="absolute -top-6 font-label-caps text-label-caps text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">90%</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline text-center truncate w-full">Aljabar</span>
+</div>
+<!-- Bar 2 -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-surface-container rounded-t-sm relative flex items-end justify-center h-full">
+<div class="w-full bg-primary rounded-t-sm chart-bar opacity-80 group-hover:opacity-100 transition-opacity" style="height: 75%;"></div>
+<span class="absolute -top-6 font-label-caps text-label-caps text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">75%</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline text-center truncate w-full">Geometri</span>
+</div>
+<!-- Bar 3 -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-surface-container rounded-t-sm relative flex items-end justify-center h-full">
+<div class="w-full bg-primary rounded-t-sm chart-bar opacity-80 group-hover:opacity-100 transition-opacity" style="height: 100%;"></div>
+<span class="absolute -top-6 font-label-caps text-label-caps text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">100%</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline text-center truncate w-full">Logika</span>
+</div>
+<!-- Bar 4 -->
+<div class="flex-1 flex flex-col items-center gap-2 group">
+<div class="w-full bg-surface-container rounded-t-sm relative flex items-end justify-center h-full">
+<div class="w-full bg-primary rounded-t-sm chart-bar opacity-80 group-hover:opacity-100 transition-opacity" style="height: 60%;"></div>
+<span class="absolute -top-6 font-label-caps text-label-caps text-on-surface opacity-0 group-hover:opacity-100 transition-opacity">60%</span>
+</div>
+<span class="font-label-caps text-label-caps text-outline text-center truncate w-full">Statistik</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="flex justify-center pt-stack-md">
+<button class="bg-primary text-on-primary hover:bg-primary-container transition-colors px-8 py-3 rounded-lg font-title-sm text-title-sm shadow-sm flex items-center gap-2 active:scale-95 duration-200">
+                        Kembali ke Dashboard
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Spacer for bottom breathing room -->
+<div class="h-16"></div>
+</main>
+</div>
+</body></html>
