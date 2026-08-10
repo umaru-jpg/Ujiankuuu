@@ -9,7 +9,7 @@ export default function SiswaPage() {
   const user = useDashboardUser();
 
   return (
-    <DashboardLayout active="siswa" allowedRoles={["siswa"]}>
+    <DashboardLayout active="dashboard" allowedRoles={["siswa"]}>
       <div className="max-w-[1280px] mx-auto">
         <div className="mb-stack-lg">
           <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">

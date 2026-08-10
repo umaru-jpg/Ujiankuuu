@@ -9,7 +9,7 @@ export default function GuruPage() {
   const user = useDashboardUser();
 
   return (
-    <DashboardLayout active="guru" allowedRoles={["guru"]}>
+    <DashboardLayout active="dashboard" allowedRoles={["guru"]}>
       <div className="max-w-[1280px] mx-auto">
         <div className="mb-stack-lg">
           <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">

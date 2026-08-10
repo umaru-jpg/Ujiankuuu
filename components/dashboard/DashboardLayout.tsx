@@ -62,7 +62,7 @@ export default function DashboardLayout({
   return (
     <DashboardUserContext.Provider value={user}>
       <div className="flex min-h-screen bg-background text-on-background antialiased">
-        <SideNav active={active} open={navOpen} onClose={() => setNavOpen(false)} />
+        <SideNav active={active} role={user.role} open={navOpen} onClose={() => setNavOpen(false)} />
         <div className="flex-grow flex flex-col min-h-screen md:ml-[260px] w-full">
           <TopNav user={user} onMenuClick={() => setNavOpen(true)} />
           <main className="flex-grow p-4 md:p-margin-desktop bg-[#F8FAFC]">{children}</main>
