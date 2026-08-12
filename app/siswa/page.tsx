@@ -78,31 +78,43 @@ function ScoreRing({ value }: { value: number }) {
   );
 }
 
-export default function SiswaPage() {
-  const router = useRouter();
+/**
+ * Disambut dengan nama siswa.
+ * Dirender DI DALAM DashboardLayout agar useDashboardUser() membaca context
+ * user yang benar (di tingkat halaman, context belum tersedia).
+ */
+function SiswaWelcome() {
   const user = useDashboardUser();
   const firstName = user?.name?.split(" ")[0] ?? "Siswa";
+
+  return (
+    <div className="mb-stack-lg bg-gradient-to-r from-primary to-primary-container rounded-xl p-6 md:p-8 relative overflow-hidden text-on-primary shadow-sm transition-shadow duration-300 hover:shadow-md">
+      <div className="relative z-10 max-w-2xl">
+        <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-2">
+          Selamat Datang, {firstName}! 👋
+        </h1>
+        <p className="font-body-md text-body-md text-on-primary/90 mb-0 max-w-xl">
+          Persiapkan dirimu. Ada 1 ujian menantimu hari ini. Tetap fokus dan berikan yang terbaik!
+        </p>
+      </div>
+      {/* Abstract BG Elements */}
+      <div
+        className="absolute right-0 top-0 w-64 h-full opacity-20 pointer-events-none"
+        style={{ background: "radial-gradient(circle at right center, white 0%, transparent 70%)" }}
+      />
+      <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+    </div>
+  );
+}
+
+export default function SiswaPage() {
+  const router = useRouter();
 
   return (
     <DashboardLayout active="dashboard" allowedRoles={["siswa"]}>
       <div className="max-w-[1280px] mx-auto">
         {/* ===== Welcome Banner ===== */}
-        <div className="mb-stack-lg bg-gradient-to-r from-primary to-primary-container rounded-xl p-6 md:p-8 relative overflow-hidden text-on-primary shadow-sm transition-shadow duration-300 hover:shadow-md">
-          <div className="relative z-10 max-w-2xl">
-            <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg mb-2">
-              Selamat Datang, {firstName}! 👋
-            </h1>
-            <p className="font-body-md text-body-md text-on-primary/90 mb-0 max-w-xl">
-              Persiapkan dirimu. Ada 1 ujian menantimu hari ini. Tetap fokus dan berikan yang terbaik!
-            </p>
-          </div>
-          {/* Abstract BG Elements */}
-          <div
-            className="absolute right-0 top-0 w-64 h-full opacity-20 pointer-events-none"
-            style={{ background: "radial-gradient(circle at right center, white 0%, transparent 70%)" }}
-          />
-          <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-        </div>
+        <SiswaWelcome />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
           {/* ===== Left Column (Main Focus) ===== */}

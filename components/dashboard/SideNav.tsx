@@ -26,8 +26,6 @@ const MENU_BY_ROLE: Record<Role, NavItem[]> = {
   admin: [
     { key: "dashboard", label: "Dashboard", icon: "dashboard" },
     { key: "management", label: "Management User", icon: "manage_accounts" },
-    { key: "guru", label: "Guru", icon: "person" },
-    { key: "siswa", label: "Siswa", icon: "group" },
     { key: "kelas", label: "Kelas", icon: "school" },
     { key: "bank", label: "Bank Soal", icon: "quiz" },
     { key: "jadwal", label: "Jadwal", icon: "calendar_today" },
@@ -67,6 +65,9 @@ function NavContent({
   /** Route yang sudah punya halaman. Menu lain tetap inert sampai halamannya dibuat. */
   const ROUTE_BY_KEY: Partial<Record<NavKey, string>> = {
     dashboard: HOME_BY_ROLE[role],
+    management: "/management",
+    kelas: "/kelas",
+    bank: "/bank",
     jadwal: "/jadwal",
     ujian: "/ujian",
     hasil: "/hasil",
