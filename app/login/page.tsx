@@ -7,8 +7,6 @@ import {
   getSession,
   HOME_BY_ROLE,
   login,
-  MOCK_USERS,
-  ROLE_LABEL,
   type User,
 } from "@/lib/auth";
 
@@ -44,13 +42,6 @@ export default function LoginPage() {
         setLoading(false);
       }
     }, 450);
-  }
-
-  function quickFill(username: string, pass: string) {
-    setIdentifier(username);
-    setPassword(pass);
-    setError(null);
-    setNotice(null);
   }
 
   return (
@@ -209,43 +200,6 @@ export default function LoginPage() {
           </p>
         </div>
       </main>
-
-      {/* ===== Akun Demo (untuk testing) ===== */}
-      <div className="w-full max-w-[440px] mt-6">
-        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-5 shadow-sm">
-          <p className="font-label-caps text-label-caps text-on-surface-variant mb-4 flex items-center gap-2">
-            <Icon name="key" size={16} />
-            Akun Demo — klik untuk mengisi otomatis
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            {MOCK_USERS.map((u) => (
-              <button
-                key={u.id}
-                type="button"
-                onClick={() => quickFill(u.username, u.password ?? "")}
-                className="group flex-1 flex items-center gap-3 sm:flex-col sm:text-center px-4 py-3 rounded-xl border border-outline-variant/40 bg-surface hover:bg-primary-fixed/40 hover:border-primary transition-all active:scale-[0.97]"
-              >
-                <div
-                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${u.color} flex items-center justify-center text-white font-bold shrink-0`}
-                >
-                  {u.initial}
-                </div>
-                <div className="text-left sm:text-center">
-                  <p className="font-title-sm text-sm font-semibold text-on-surface">
-                    {ROLE_LABEL[u.role]}
-                  </p>
-                  <p className="font-body-sm text-xs text-on-surface-variant mt-0.5">
-                    {u.username} / {u.password}
-                  </p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-        <p className="text-center font-body-sm text-body-sm text-on-surface-variant mt-4">
-          Prototype frontend — data login disimpan di browser (localStorage).
-        </p>
-      </div>
     </div>
   );
 }
