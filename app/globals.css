@@ -25,6 +25,11 @@ body {
   user-select: none;
 }
 
+/* Bar chart mount animation (Hasil Ujian page) */
+.chart-bar {
+  transition: height 1s ease-out;
+}
+
 /* Subtle scrollbar consistent with the design system */
 ::-webkit-scrollbar {
   width: 8px;

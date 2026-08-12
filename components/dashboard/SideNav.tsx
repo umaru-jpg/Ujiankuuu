@@ -42,7 +42,6 @@ const MENU_BY_ROLE: Record<Role, NavItem[]> = {
   siswa: [
     { key: "dashboard", label: "Dashboard", icon: "dashboard" },
     { key: "jadwal", label: "Jadwal", icon: "calendar_today" },
-    { key: "ujian", label: "Ujian", icon: "edit_note" },
     { key: "hasil", label: "Hasil", icon: "assessment" },
   ],
 };
@@ -65,16 +64,33 @@ function NavContent({
 }) {
   const router = useRouter();
 
+  /** Route yang sudah punya halaman. Menu lain tetap inert sampai halamannya dibuat. */
+  const ROUTE_BY_KEY: Partial<Record<NavKey, string>> = {
+    dashboard: HOME_BY_ROLE[role],
+    jadwal: "/jadwal",
+    ujian: "/ujian",
+    hasil: "/hasil",
+  };
+
   return (
     <>
-      <div className="px-6 mb-8 flex flex-col gap-2">
-        <span className="font-headline-md text-headline-md font-bold text-primary tracking-tight">
-          Ujiankuuu
-        </span>
-        <span className="font-body-sm text-body-sm text-on-surface-variant">SMK Jakarta Pusat 1</span>
-        <span className="inline-flex self-start items-center gap-1 px-2 py-0.5 mt-1 rounded-full bg-primary-container text-on-primary-container text-[11px] font-semibold uppercase tracking-wider">
-          {ROLE_LABEL[role]}
-        </span>
+      <div className="px-6 mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-lg shrink-0">
+            U
+          </div>
+          <div className="min-w-0">
+            <span className="block font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed tracking-tight truncate">
+              Ujiankuuu
+            </span>
+            <span className="block font-label-caps text-label-caps text-secondary dark:text-secondary-fixed">
+              SMK Jakarta Pusat 1
+            </span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 mt-1 rounded-full bg-primary-container text-on-primary-container text-[11px] font-semibold uppercase tracking-wider">
+              {ROLE_LABEL[role]}
+            </span>
+          </div>
+        </div>
       </div>
       <ul className="flex flex-col gap-2 px-3 flex-grow">
         {MENU_BY_ROLE[role].map((item) => {
@@ -84,8 +100,8 @@ function NavContent({
               <button
                 onClick={() => {
                   onNavigate?.();
-                  // Hanya Dashboard yang punya halaman saat ini; menu lain menunggu halamannya dibuat.
-                  if (item.key === "dashboard") router.push(HOME_BY_ROLE[role]);
+                  const route = ROUTE_BY_KEY[item.key];
+                  if (route) router.push(route);
                 }}
                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg font-title-sm text-title-sm transition-colors cursor-pointer active:scale-95 duration-200 ${
                   isActive
@@ -101,8 +117,8 @@ function NavContent({
         })}
       </ul>
       <div className="px-6 mt-auto">
-        <button className="w-full flex items-center justify-center gap-2 py-3 bg-primary-container text-on-primary rounded-lg font-title-sm text-title-sm hover:bg-primary transition-colors">
-          <Icon name="help" size={20} />
+        <button className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-surface-variant text-on-surface hover:bg-surface-container-high transition-colors font-title-sm text-title-sm">
+          <Icon name="help_outline" size={20} />
           Bantuan
         </button>
       </div>

@@ -16,12 +16,15 @@ interface DashboardLayoutProps {
   active: NavKey;
   /** Roles yang boleh mengakses halaman ini; selain itu dialihkan ke home masing-masing. */
   allowedRoles?: Role[];
+  /** Kelas Tailwind tambahan untuk area konten <main> (mis. warna latar per halaman). */
+  contentClassName?: string;
   children: React.ReactNode;
 }
 
 export default function DashboardLayout({
   active,
   allowedRoles,
+  contentClassName = "bg-[#F8FAFC]",
   children,
 }: DashboardLayoutProps) {
   const router = useRouter();
@@ -65,7 +68,7 @@ export default function DashboardLayout({
         <SideNav active={active} role={user.role} open={navOpen} onClose={() => setNavOpen(false)} />
         <div className="flex-grow flex flex-col min-h-screen md:ml-[260px] w-full">
           <TopNav user={user} onMenuClick={() => setNavOpen(true)} />
-          <main className="flex-grow p-4 md:p-margin-desktop bg-[#F8FAFC]">{children}</main>
+          <main className={`flex-grow p-4 md:p-margin-desktop ${contentClassName}`}>{children}</main>
         </div>
       </div>
     </DashboardUserContext.Provider>

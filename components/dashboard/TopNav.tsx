@@ -43,12 +43,12 @@ export default function TopNav({ user, onMenuClick }: TopNavProps) {
       </div>
 
       {/* Search (desktop) */}
-      <div className="hidden md:flex items-center bg-surface-container-low rounded-lg px-3 py-2 w-full max-w-md border border-outline-variant focus-within:border-primary transition-colors">
+      <div className="hidden md:flex items-center bg-surface-container-high rounded-full px-4 py-2 w-full max-w-md focus-within:ring-2 focus-within:ring-primary transition-all">
         <Icon name="search" className="text-outline" />
         <input
           name="search"
           className="bg-transparent border-none focus:ring-0 w-full font-body-sm text-body-sm text-on-surface ml-2 outline-none placeholder:text-outline"
-          placeholder="Cari siswa, guru, atau ujian..."
+          placeholder="Cari..."
           type="text"
         />
       </div>
