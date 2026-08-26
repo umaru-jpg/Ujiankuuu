@@ -116,19 +116,19 @@ export default function SiswaPage() {
         {/* ===== Welcome Banner ===== */}
         <SiswaWelcome />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-gutter">
           {/* ===== Left Column (Main Focus) ===== */}
-          <div className="lg:col-span-2 space-y-stack-lg">
+          <div className="lg:col-span-2 space-y-3 md:space-y-stack-lg">
             {/* --- Jadwal Ujian Hari Ini --- */}
             <section>
-              <div className="flex items-center justify-between mb-stack-md">
+              <div className="flex items-center justify-between mb-3 md:mb-stack-md">
                 <h2 className="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
                   <Icon name="schedule" className="text-primary" size={24} />
                   Jadwal Ujian Hari Ini
                 </h2>
               </div>
-              <div className="bg-surface rounded-xl p-6 border border-outline-variant border-l-4 border-l-primary shadow-sm transition-shadow duration-300 hover:shadow-md relative overflow-hidden">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="bg-surface rounded-xl p-4 md:p-6 border border-outline-variant border-l-4 border-l-primary shadow-sm transition-shadow duration-300 hover:shadow-md relative overflow-hidden">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6">
                   <div>
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-error-container text-on-error-container font-label-caps text-label-caps mb-3">
                       <span className="w-1.5 h-1.5 rounded-full bg-error animate-pulse" />
@@ -153,7 +153,7 @@ export default function SiswaPage() {
                     <p className="font-title-sm text-title-sm text-on-surface mb-2">08:00 - 09:30 WIB</p>
                     <button
                       onClick={() => router.push("/ujian")}
-                      className="w-full md:w-auto bg-primary text-on-primary font-title-sm text-title-sm py-3 px-8 rounded-lg hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-sm flex items-center justify-center gap-2 min-h-[44px] cursor-pointer"
+                      className="w-full md:w-auto bg-primary text-on-primary font-title-sm text-title-sm py-3 px-6 md:px-8 rounded-lg hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-sm flex items-center justify-center gap-2 min-h-[44px] cursor-pointer"
                     >
                       Mulai Ujian
                       <Icon name="arrow_forward" size={18} />
@@ -164,10 +164,10 @@ export default function SiswaPage() {
             </section>
 
             {/* --- Ujian Akan Datang & Riwayat Terbaru --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-gutter">
               {/* Upcoming */}
               <section className="bg-surface rounded-xl border border-outline-variant shadow-sm flex flex-col overflow-hidden">
-                <div className="p-5 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+                <div className="p-4 md:p-5 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
                   <h3 className="font-title-sm text-title-sm text-on-surface font-semibold">
                     Ujian Akan Datang
                   </h3>
@@ -179,14 +179,14 @@ export default function SiswaPage() {
                   {UPCOMING_EXAMS.map((exam, i) => (
                     <div
                       key={exam.title}
-                      className={`flex items-start gap-4 p-3 hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer ${
+                      className={`flex items-start gap-3 md:gap-4 p-3 hover:bg-surface-container-low rounded-lg transition-colors cursor-pointer ${
                         i < UPCOMING_EXAMS.length - 1 ? "border-b border-surface-variant" : ""
                       }`}
                     >
-                      <div className="w-12 h-12 rounded-lg bg-primary-container flex flex-col items-center justify-center text-on-primary font-bold shrink-0">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-primary-container flex flex-col items-center justify-center text-on-primary font-bold shrink-0">
                         <div className="text-center leading-tight">
-                          <div className="text-xs font-semibold uppercase">{exam.month}</div>
-                          <div className="text-lg leading-none">{exam.day}</div>
+                          <div className="text-[10px] md:text-xs font-semibold uppercase">{exam.month}</div>
+                          <div className="text-sm md:text-lg leading-none">{exam.day}</div>
                         </div>
                       </div>
                       <div className="min-w-0">
@@ -204,7 +204,7 @@ export default function SiswaPage() {
 
               {/* History */}
               <section className="bg-surface rounded-xl border border-outline-variant shadow-sm flex flex-col overflow-hidden">
-                <div className="p-5 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+                <div className="p-4 md:p-5 border-b border-outline-variant flex justify-between items-center bg-surface-bright">
                   <h3 className="font-title-sm text-title-sm text-on-surface font-semibold">
                     Riwayat Terbaru
                   </h3>
@@ -245,18 +245,18 @@ export default function SiswaPage() {
           </div>
 
           {/* ===== Right Column (Stats & Announcements) ===== */}
-          <div className="space-y-stack-lg">
+          <div className="space-y-3 md:space-y-stack-lg">
             {/* --- Rata-rata Nilai --- */}
-            <section className="bg-surface rounded-xl border border-outline-variant p-6 shadow-sm text-center relative overflow-hidden transition-shadow duration-300 hover:shadow-md">
+            <section className="bg-surface rounded-xl border border-outline-variant p-4 md:p-6 shadow-sm text-center relative overflow-hidden transition-shadow duration-300 hover:shadow-md">
               <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/5 rounded-full blur-xl" />
-              <h3 className="font-title-sm text-title-sm text-on-surface-variant mb-6 relative z-10">
+              <h3 className="font-title-sm text-title-sm text-on-surface-variant mb-4 md:mb-6 relative z-10">
                 Rata-rata Nilai Semester Ini
               </h3>
               <ScoreRing value={82} />
               <p className="font-body-sm text-body-sm text-on-surface-variant relative z-10">
                 Dari 12 Ujian Terselesaikan
               </p>
-              <div className="mt-6 pt-6 border-t border-outline-variant flex justify-around relative z-10">
+              <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-outline-variant flex justify-around relative z-10">
                 <div className="text-center">
                   <p className="font-body-sm text-body-sm text-on-surface-variant text-xs mb-1">Tertinggi</p>
                   <p className="font-title-sm text-title-sm text-on-surface font-semibold text-primary">95</p>
@@ -271,16 +271,16 @@ export default function SiswaPage() {
 
             {/* --- Pengumuman Sekolah --- */}
             <section className="bg-surface rounded-xl border border-outline-variant shadow-sm flex flex-col overflow-hidden transition-shadow duration-300 hover:shadow-md">
-              <div className="p-5 border-b border-outline-variant bg-surface-bright flex items-center gap-2">
-                <Icon name="campaign" className="text-primary" size={22} />
+              <div className="p-4 md:p-5 border-b border-outline-variant bg-surface-bright flex items-center gap-2">
+                <Icon name="campaign" className="text-primary" size={20} />
                 <h3 className="font-title-sm text-title-sm text-on-surface font-semibold">
                   Pengumuman Sekolah
                 </h3>
               </div>
-              <div className="p-5 space-y-4">
+              <div className="p-4 md:p-5 space-y-3 md:space-y-4">
                 {ANNOUNCEMENTS.map((a, i) => (
                   <div key={a.title}>
-                    {i > 0 && <div className="w-full h-px bg-outline-variant mb-4" />}
+                    {i > 0 && <div className="w-full h-px bg-outline-variant mb-3 md:mb-4" />}
                     <div className="group cursor-pointer">
                       <div className="flex items-center gap-2 mb-1">
                         <span

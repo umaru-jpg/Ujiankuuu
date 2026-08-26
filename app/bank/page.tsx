@@ -223,12 +223,12 @@ export default function BankSoalPage() {
     <DashboardLayout active="bank" allowedRoles={["admin", "guru"]}>
       <div className="max-w-[1280px] mx-auto">
         {/* Page Header & Actions */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-stack-lg">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-stack-lg">
           <div>
             <h2 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">
               Manajemen Bank Soal
             </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-2">
+            <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant mt-1 md:mt-2">
               {isAdmin
                 ? "Kelola, filter, dan buat soal ujian baru untuk berbagai mata pelajaran."
                 : "Kelola dan buat soal ujian dari soal yang Anda buat sendiri."}
@@ -236,24 +236,25 @@ export default function BankSoalPage() {
           </div>
           <button
             onClick={() => setOpen(true)}
-            className="bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors px-6 py-3 rounded-lg font-title-sm text-title-sm flex items-center gap-2 shadow-sm whitespace-nowrap min-h-[44px] cursor-pointer active:scale-95 duration-200"
+            className="bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-title-sm text-title-sm flex items-center gap-2 shadow-sm whitespace-nowrap min-h-[44px] cursor-pointer active:scale-95 duration-200"
           >
             <Icon name="add" />
-            Buat Soal Baru
+            <span className="hidden sm:inline">Buat Soal Baru</span>
+            <span className="sm:hidden">Baru</span>
           </button>
         </div>
 
         {/* Filters */}
-        <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-sm mb-stack-lg flex flex-col md:flex-row gap-4">
+        <div className="bg-surface-container-lowest p-3 md:p-4 rounded-xl border border-outline-variant shadow-sm mb-4 md:mb-stack-lg flex flex-col md:flex-row gap-3 md:gap-4">
           <div className="flex-1">
-            <label className="block font-label-caps text-label-caps text-on-surface-variant mb-2">
+            <label className="block font-label-caps text-label-caps text-on-surface-variant mb-1.5 md:mb-2">
               MATA PELAJARAN
             </label>
             <div className="relative">
               <select
                 value={mapelFilter}
                 onChange={(e) => resetPage(setMapelFilter)(e.target.value)}
-                className="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-on-surface"
+                className="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-3 md:px-4 py-2 md:py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-on-surface"
               >
                 {MAPEL_FILTERS.map((m) => (
                   <option key={m}>{m}</option>
@@ -265,14 +266,14 @@ export default function BankSoalPage() {
             </div>
           </div>
           <div className="flex-1">
-            <label className="block font-label-caps text-label-caps text-on-surface-variant mb-2">
+            <label className="block font-label-caps text-label-caps text-on-surface-variant mb-1.5 md:mb-2">
               KELAS
             </label>
             <div className="relative">
               <select
                 value={kelasFilter}
                 onChange={(e) => resetPage(setKelasFilter)(e.target.value)}
-                className="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-on-surface"
+                className="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-3 md:px-4 py-2 md:py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-on-surface"
               >
                 {KELAS_FILTERS.map((k) => (
                   <option key={k}>{k}</option>
@@ -284,14 +285,14 @@ export default function BankSoalPage() {
             </div>
           </div>
           <div className="flex-1">
-            <label className="block font-label-caps text-label-caps text-on-surface-variant mb-2">
+            <label className="block font-label-caps text-label-caps text-on-surface-variant mb-1.5 md:mb-2">
               STATUS
             </label>
             <div className="relative">
               <select
                 value={statusFilter}
                 onChange={(e) => resetPage(setStatusFilter)(e.target.value)}
-                className="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-on-surface"
+                className="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-lg px-3 md:px-4 py-2 md:py-2.5 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary cursor-pointer text-on-surface"
               >
                 {STATUS_FILTERS.map((s) => (
                   <option key={s}>{s}</option>
@@ -306,8 +307,8 @@ export default function BankSoalPage() {
 
         {/* Bento Grid List of Questions */}
         {paged.length === 0 ? (
-          <div className="bg-surface-container-lowest rounded-xl border border-dashed border-outline-variant p-12 text-center">
-            <Icon name="quiz" size={40} className="text-outline mx-auto mb-3" />
+          <div className="bg-surface-container-lowest rounded-xl border border-dashed border-outline-variant p-8 md:p-12 text-center">
+            <Icon name="quiz" size={36} className="text-outline mx-auto mb-3" />
             <p className="font-title-sm text-title-sm text-on-surface">Tidak ada soal yang cocok</p>
             <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
               {isAdmin
@@ -316,18 +317,18 @@ export default function BankSoalPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-gutter">
             {paged.map((soal) => (
-              <div
-                key={soal.id}
-                className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative group flex flex-col"
-              >
-                <div className="flex justify-between items-start mb-4">
+            <div
+              key={soal.id}
+              className="bg-surface-container-lowest p-4 md:p-6 rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative group flex flex-col"
+            >
+                <div className="flex justify-between items-start mb-3 md:mb-4">
                   <div className="flex gap-2">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps">
+                    <span className="inline-flex items-center gap-1 px-2 md:px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-fixed font-label-caps text-label-caps text-xs">
                       {soal.mapel.toUpperCase()}
                     </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface font-label-caps text-label-caps">
+                    <span className="inline-flex items-center gap-1 px-2 md:px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface font-label-caps text-label-caps text-xs">
                       {soal.kelas.toUpperCase()}
                     </span>
                   </div>
@@ -344,14 +345,14 @@ export default function BankSoalPage() {
                 <h3 className="font-title-sm text-title-sm text-on-surface mb-2 line-clamp-2">
                   {soal.pertanyaan}
                 </h3>
-                <p className="font-body-sm text-body-sm text-on-surface-variant mb-4 flex items-center gap-1">
+                <p className="font-body-sm text-body-sm text-on-surface-variant mb-3 md:mb-4 flex items-center gap-1">
                   <Icon
                     name={soal.tipe === "Pilihan Ganda" ? "radio_button_checked" : "subject"}
                     size={16}
                   />
                   {soal.tipe}
                 </p>
-                <div className="flex items-center justify-between pt-4 border-t border-outline-variant/50 mt-auto">
+                <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-outline-variant/50 mt-auto">
                   <div className="flex items-center gap-3 min-w-0">
                     <div
                       className={`w-6 h-6 rounded-full border-2 border-surface object-cover bg-gradient-to-br ${soal.color} flex items-center justify-center text-white text-[10px] font-bold shrink-0`}
@@ -391,7 +392,7 @@ export default function BankSoalPage() {
         )}
 
         {/* Pagination (Simple) */}
-        <div className="flex items-center justify-center gap-2 mt-stack-lg">
+        <div className="flex items-center justify-center gap-1.5 md:gap-2 mt-4 md:mt-stack-lg">
           <button
             onClick={() => changePage(safePage - 1)}
             disabled={safePage <= 1}

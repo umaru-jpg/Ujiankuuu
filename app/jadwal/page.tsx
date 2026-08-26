@@ -1,413 +1,833 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout, {
   useDashboardUser,
 } from "@/components/dashboard/DashboardLayout";
 import Icon from "@/components/Icon";
+import { getSession } from "@/lib/auth";
+
+// ── Types ──────────────────────────────────────────────────────────────
 
 type ViewMode = "kalender" | "daftar";
 
-interface Schedule {
+type ExamType = "PTS" | "PAS" | "UH" | "UTS" | "UAS" | "other";
+type ExamStatus = "scheduled" | "ongoing" | "completed" | "cancelled";
+
+interface JadwalItem {
   id: number;
-  dayName: string;
-  day: string;
-  month: string;
-  time: string;
-  type: string;
   title: string;
-  mapel: string;
-  kelas: string;
-  ruang: string;
-  pengawas: string[];
+  subject: string;
+  exam_type: ExamType;
+  exam_date: string; // YYYY-MM-DD
+  start_time: string; // HH:mm:ss
+  end_time: string;
+  room: string;
+  class_names: string; // JSON string
+  supervisors: string; // JSON string
+  status: ExamStatus;
+  notes: string | null;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+  creator_name?: string;
 }
 
-const INITIAL_SCHEDULES: Schedule[] = [
-  {
-    id: 1,
-    dayName: "Senin",
-    day: "14",
-    month: "Okt",
-    time: "08:00 - 10:00",
-    type: "PTS Ganjil",
-    title: "Matematika Lanjut",
-    mapel: "Matematika",
-    kelas: "Kelas XII RPL 1, XII RPL 2",
-    ruang: "Lab Komputer A & B",
-    pengawas: ["Budi Santoso", "Siti Aminah"],
-  },
-  {
-    id: 2,
-    dayName: "Selasa",
-    day: "15",
-    month: "Okt",
-    time: "10:30 - 12:30",
-    type: "PTS Ganjil",
-    title: "Fisika Terapan",
-    mapel: "Fisika",
-    kelas: "Kelas XI TKJ 1",
-    ruang: "Lab Fisika",
-    pengawas: ["Andi Wijaya"],
-  },
-  {
-    id: 3,
-    dayName: "Rabu",
-    day: "16",
-    month: "Okt",
-    time: "08:00 - 10:00",
-    type: "UH Harian",
-    title: "Bahasa Indonesia",
-    mapel: "Bahasa Indonesia",
-    kelas: "Kelas X RPL 1, X RPL 2",
-    ruang: "Ruang 201 & 202",
-    pengawas: ["Dewi Lestari"],
-  },
-  {
-    id: 4,
-    dayName: "Kamis",
-    day: "17",
-    month: "Okt",
-    time: "13:00 - 15:00",
-    type: "PTS Ganjil",
-    title: "Pemrograman Web",
-    mapel: "Kejuruan RPL",
-    kelas: "Kelas XII RPL 1",
-    ruang: "Lab Komputer C",
-    pengawas: ["Hendra Gunawan", "Rina Marlina"],
-  },
-];
+interface FormState {
+  title: string;
+  subject: string;
+  exam_type: ExamType;
+  exam_date: string;
+  start_time: string;
+  end_time: string;
+  room: string;
+  class_names: string; // comma-separated input
+  supervisors: string; // comma-separated input
+  status: ExamStatus;
+  notes: string;
+}
 
-const KELAS_FILTERS = ["Semua Kelas", "Kelas X", "Kelas XI", "Kelas XII"];
-const MAPEL_FILTERS = ["Semua Mapel", "Matematika", "Bahasa Indonesia", "Kejuruan RPL"];
+const EMPTY_FORM: FormState = {
+  title: "",
+  subject: "",
+  exam_type: "PTS",
+  exam_date: "",
+  start_time: "",
+  end_time: "",
+  room: "",
+  class_names: "",
+  supervisors: "",
+  status: "scheduled",
+  notes: "",
+};
 
-// Oktober 2023: tanggal 1 jatuh pada hari Minggu (kolom pertama = Minggu).
-const KALENDER_DAYS: (number | null)[] = [
-  1, 2, 3, 4, 5, 6, 7,
-  8, 9, 10, 11, 12, 13, 14,
-  15, 16, 17, 18, 19, 20, 21,
-  22, 23, 24, 25, 26, 27, 28,
-  29, 30, 31, null, null, null, null,
-];
+const EXAM_TYPES: ExamType[] = ["PTS", "PAS", "UH", "UTS", "UAS", "other"];
+const STATUS_OPTIONS: ExamStatus[] = ["scheduled", "ongoing", "completed", "cancelled"];
 
-/** Kartu tanggal yang dipakai di tampilan siswa & daftar admin. */
-function DateBox({ s, compact = false }: { s: Schedule; compact?: boolean }) {
+const STATUS_LABEL: Record<ExamStatus, string> = {
+  scheduled: "Terjadwal",
+  ongoing: "Berlangsung",
+  completed: "Selesai",
+  cancelled: "Dibatalkan",
+};
+
+const STATUS_BADGE: Record<ExamStatus, string> = {
+  scheduled: "bg-primary-fixed text-on-primary-fixed",
+  ongoing: "bg-secondary-fixed text-on-secondary-fixed",
+  completed: "bg-green-100 text-green-800",
+  cancelled: "bg-error-container text-on-error-container",
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────
+
+function formatDate(dateStr: string): { dayName: string; day: string; month: string } {
+  const date = new Date(dateStr + "T00:00:00");
+  const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+  return {
+    dayName: dayNames[date.getDay()],
+    day: String(date.getDate()),
+    month: monthNames[date.getMonth()],
+  };
+}
+
+function formatTimeRange(start: string, end: string): string {
+  const s = start.slice(0, 5);
+  const e = end.slice(0, 5);
+  return `${s} - ${e}`;
+}
+
+function parseJsonArray(json: string): string[] {
+  try {
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+// ── DateBox Component ──────────────────────────────────────────────────
+
+function DateBox({ dateStr, compact = false }: { dateStr: string; compact?: boolean }) {
+  const { dayName, day, month } = formatDate(dateStr);
   return (
     <div
       className={`${
-        compact ? "min-w-[120px]" : "min-w-[150px]"
-      } flex flex-row md:flex-col gap-2 md:gap-1 items-start md:items-center justify-between md:justify-center p-3 bg-surface-bright border border-outline-variant rounded-lg`}
+        compact ? "min-w-[100px]" : "min-w-[120px]"
+      } flex flex-row md:flex-col gap-2 md:gap-1 items-start md:items-center justify-between md:justify-center p-2 md:p-3 bg-surface-bright border border-outline-variant rounded-lg`}
     >
       <div className="text-center">
-        <div className="font-label-caps text-label-caps text-primary uppercase">{s.dayName}</div>
+        <div className="font-label-caps text-label-caps text-primary uppercase">{dayName}</div>
         <div className="font-headline-md text-headline-md text-on-surface">
-          {s.day} {s.month}
+          {day} {month}
         </div>
       </div>
       <div className="h-8 w-px bg-outline-variant hidden md:block my-1" />
-      <div className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant font-medium">
-        <Icon name="schedule" size={16} />
-        {s.time}
-      </div>
     </div>
   );
 }
+
+// ── Main Component ─────────────────────────────────────────────────────
 
 export default function JadwalPage() {
   const router = useRouter();
   const user = useDashboardUser();
   const isSiswa = user?.role === "siswa";
+  const canEdit = user?.role === "admin" || user?.role === "guru";
 
   const [view, setView] = useState<ViewMode>("daftar");
-  const [kelasFilter, setKelasFilter] = useState(KELAS_FILTERS[0]);
-  const [mapelFilter, setMapelFilter] = useState(MAPEL_FILTERS[0]);
-  const [schedules, setSchedules] = useState<Schedule[]>(INITIAL_SCHEDULES);
+  const [schedules, setSchedules] = useState<JadwalItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // Modal states
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState<JadwalItem | null>(null);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [deleting, setDeleting] = useState<JadwalItem | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Fetch data from API ────────────────────────────────────────────
+
+  const fetchSchedules = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/jadwal?limit=100");
+      if (!res.ok) throw new Error("Gagal memuat data");
+      const data = await res.json();
+      setSchedules(data.data ?? []);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setToast("Gagal memuat data jadwal ujian.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSchedules();
+  }, [fetchSchedules]);
+
+  // Toast timer cleanup
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
+  }, []);
+
+  function showToast(message: string) {
+    setToast(message);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 2500);
+  }
+
+  // ── Filter logic ───────────────────────────────────────────────────
 
   const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
     return schedules.filter((s) => {
-      // Cocokkan per kelas (X, XI, XII) dengan batas kata agar "X" tidak cocok dengan "XII".
-      const matchKelas =
-        kelasFilter === "Semua Kelas" ||
-        s.kelas
-          .split(",")
-          .some((k) => k.trim().split(/\s+/).includes(kelasFilter.replace("Kelas ", "")));
-      const matchMapel = mapelFilter === "Semua Mapel" || s.mapel === mapelFilter;
-      return matchKelas && matchMapel;
+      const matchSearch =
+        !q ||
+        s.title.toLowerCase().includes(q) ||
+        s.subject.toLowerCase().includes(q) ||
+        s.room.toLowerCase().includes(q);
+      const matchStatus = statusFilter === "all" || s.status === statusFilter;
+      return matchSearch && matchStatus;
     });
-  }, [schedules, kelasFilter, mapelFilter]);
+  }, [schedules, searchQuery, statusFilter]);
 
-  const examDays = new Set(schedules.map((s) => parseInt(s.day, 10)));
+  // ── Form handlers ──────────────────────────────────────────────────
+
+  function openAdd() {
+    setEditing(null);
+    setForm(EMPTY_FORM);
+    setFormError(null);
+    setFormOpen(true);
+  }
+
+  function openEdit(item: JadwalItem) {
+    setEditing(item);
+    const classNames = parseJsonArray(item.class_names).join(", ");
+    const supervisors = parseJsonArray(item.supervisors).join(", ");
+    setForm({
+      title: item.title,
+      subject: item.subject,
+      exam_type: item.exam_type,
+      exam_date: item.exam_date,
+      start_time: item.start_time.slice(0, 5),
+      end_time: item.end_time.slice(0, 5),
+      room: item.room,
+      class_names: classNames,
+      supervisors: supervisors,
+      status: item.status,
+      notes: item.notes ?? "",
+    });
+    setFormError(null);
+    setFormOpen(true);
+  }
+
+  function validate(): string | null {
+    if (!form.title.trim()) return "Judul ujian wajib diisi.";
+    if (!form.subject.trim()) return "Mata pelajaran wajib diisi.";
+    if (!form.exam_date) return "Tanggal ujian wajib diisi.";
+    if (!form.start_time) return "Jam mulai wajib diisi.";
+    if (!form.end_time) return "Jam selesai wajib diisi.";
+    if (!form.room.trim()) return "Ruangan wajib diisi.";
+    if (!form.class_names.trim()) return "Kelas wajib diisi.";
+    if (!form.supervisors.trim()) return "Pengawas wajib diisi.";
+    if (form.end_time <= form.start_time) return "Jam selesai harus lebih besar dari jam mulai.";
+    return null;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const err = validate();
+    if (err) {
+      setFormError(err);
+      return;
+    }
+
+    const session = getSession();
+    if (!session) {
+      setToast("Sesi habis, silakan login kembali.");
+      return;
+    }
+
+    const payload = {
+      title: form.title.trim(),
+      subject: form.subject.trim(),
+      exam_type: form.exam_type,
+      exam_date: form.exam_date,
+      start_time: form.start_time.length === 5 ? form.start_time + ":00" : form.start_time,
+      end_time: form.end_time.length === 5 ? form.end_time + ":00" : form.end_time,
+      room: form.room.trim(),
+      class_names: form.class_names.split(",").map((c) => c.trim()).filter(Boolean),
+      supervisors: form.supervisors.split(",").map((s) => s.trim()).filter(Boolean),
+      status: form.status,
+      notes: form.notes.trim() || null,
+      created_by: session.id,
+    };
+
+    try {
+      setSubmitting(true);
+      let res: Response;
+
+      if (editing) {
+        res = await fetch(`/api/jadwal/${editing.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch("/api/jadwal", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      const data = await res.json();
+      if (!res.ok) {
+        setFormError(data.message || "Terjadi kesalahan.");
+        return;
+      }
+
+      showToast(editing ? "Jadwal berhasil diperbarui." : "Jadwal berhasil dibuat.");
+      setFormOpen(false);
+      fetchSchedules();
+    } catch (error) {
+      console.error("Submit error:", error);
+      setFormError("Gagal menyimpan data. Periksa koneksi.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!deleting) return;
+    try {
+      const res = await fetch(`/api/jadwal/${deleting.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.message || "Gagal menghapus jadwal.");
+        return;
+      }
+      showToast("Jadwal berhasil dihapus.");
+      setDeleting(null);
+      fetchSchedules();
+    } catch (error) {
+      console.error("Delete error:", error);
+      showToast("Gagal menghapus jadwal.");
+    }
+  }
+
+  // ── Input styles ───────────────────────────────────────────────────
+
+  const inputClass =
+    "w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 md:px-4 py-2 md:py-2.5 font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all";
+  const labelClass = "font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider block mb-1.5";
+
+  // ── Render ─────────────────────────────────────────────────────────
 
   return (
     <DashboardLayout active="jadwal">
       <div className="max-w-[1280px] mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-stack-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-stack-lg">
           <div>
             <h1 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">
               Jadwal Ujian
             </h1>
-            <p className="font-body-md text-body-md text-on-surface-variant">
+            <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
               {isSiswa
                 ? "Berikut jadwal ujian kamu minggu ini."
                 : "Kelola jadwal ujian, alokasi waktu, dan pengawas."}
             </p>
           </div>
-          {!isSiswa && (
-            <div className="flex items-center gap-3">
-              <div className="flex bg-surface-container-low rounded-lg p-1 border border-outline-variant">
-                <button
-                  onClick={() => setView("kalender")}
-                  className={`px-4 py-2 rounded-md font-title-sm text-title-sm flex items-center gap-2 transition-all cursor-pointer active:scale-95 ${
-                    view === "kalender"
-                      ? "bg-surface shadow-sm text-on-surface"
-                      : "text-on-surface-variant hover:bg-surface-variant"
-                  }`}
-                >
-                  <Icon name="calendar_view_month" size={20} />
-                  <span className="hidden sm:inline">Kalender</span>
-                </button>
-                <button
-                  onClick={() => setView("daftar")}
-                  className={`px-4 py-2 rounded-md font-title-sm text-title-sm flex items-center gap-2 transition-all cursor-pointer active:scale-95 ${
-                    view === "daftar"
-                      ? "bg-surface shadow-sm text-on-surface"
-                      : "text-on-surface-variant hover:bg-surface-variant"
-                  }`}
-                >
-                  <Icon name="view_list" size={20} />
-                  <span className="hidden sm:inline">Daftar</span>
-                </button>
-              </div>
-              <div className="w-px h-8 bg-outline-variant hidden sm:block" />
-              <span className="font-body-sm text-body-sm text-on-surface-variant">
-                {filtered.length} jadwal minggu ini
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {!isSiswa && (
+              <>
+                <div className="flex bg-surface-container-low rounded-lg p-1 border border-outline-variant">
+                  <button
+                    onClick={() => setView("kalender")}
+                    className={`px-3 md:px-4 py-2 rounded-md font-title-sm text-title-sm flex items-center gap-2 transition-all cursor-pointer active:scale-95 ${
+                      view === "kalender"
+                        ? "bg-surface shadow-sm text-on-surface"
+                        : "text-on-surface-variant hover:bg-surface-variant"
+                    }`}
+                  >
+                    <Icon name="calendar_view_month" size={20} />
+                    <span className="hidden sm:inline">Kalender</span>
+                  </button>
+                  <button
+                    onClick={() => setView("daftar")}
+                    className={`px-3 md:px-4 py-2 rounded-md font-title-sm text-title-sm flex items-center gap-2 transition-all cursor-pointer active:scale-95 ${
+                      view === "daftar"
+                        ? "bg-surface shadow-sm text-on-surface"
+                        : "text-on-surface-variant hover:bg-surface-variant"
+                    }`}
+                  >
+                    <Icon name="view_list" size={20} />
+                    <span className="hidden sm:inline">Daftar</span>
+                  </button>
+                </div>
+                <div className="w-px h-8 bg-outline-variant hidden sm:block" />
+              </>
+            )}
+            <span className="font-body-sm text-body-sm text-on-surface-variant hidden sm:inline">
+              {filtered.length} jadwal
+            </span>
+          </div>
         </div>
 
-        {/* ===== Tampilan Siswa: 1 contoh jadwal + Mulai Ujian ===== */}
-        {isSiswa ? (
+        {/* Admin/Guru Toolbar */}
+        {canEdit && (
+          <div className="flex flex-col sm:flex-row gap-3 mb-4 md:mb-stack-lg">
+            <div className="flex-1 relative">
+              <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari jadwal..."
+                className="w-full pl-9 md:pl-10 pr-4 py-2 md:py-2.5 bg-surface-container-high rounded-full font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-surface-container-low border border-outline-variant rounded-lg px-3 md:px-4 py-2 md:py-2.5 font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary cursor-pointer"
+            >
+              <option value="all">Semua Status</option>
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+              ))}
+            </select>
+            <button
+              onClick={openAdd}
+              className="bg-primary text-on-primary px-4 md:px-6 py-2.5 rounded-lg font-title-sm text-title-sm flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-sm min-h-[44px] cursor-pointer active:scale-95"
+            >
+              <Icon name="add" size={20} />
+              <span className="hidden sm:inline">Tambah Jadwal</span>
+              <span className="sm:hidden">Baru</span>
+            </button>
+          </div>
+        )}
+
+        {/* Loading */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && filtered.length === 0 && (
+          <div className="bg-surface border border-outline-variant rounded-xl shadow-sm p-8 md:p-12 text-center">
+            <Icon name="event_busy" size={40} className="text-outline mx-auto mb-3" />
+            <p className="font-title-sm text-title-sm text-on-surface">Tidak ada jadwal ujian</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+              {canEdit ? "Klik \"Tambah Jadwal\" untuk membuat jadwal baru." : "Belum ada jadwal ujian yang tersedia."}
+            </p>
+          </div>
+        )}
+
+        {/* Tampilan Siswa */}
+        {!loading && isSiswa && filtered.length > 0 && (
           <div className="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
             <div className="p-4 border-b border-outline-variant bg-surface-bright flex items-center justify-between">
               <span className="font-title-sm text-title-sm text-on-surface">
-                Ujian Terdekat Anda
+                Jadwal Ujian Terdekat
               </span>
               <span className="font-body-sm text-body-sm text-on-surface-variant">
-                1 jadwal aktif minggu ini
+                {filtered.length} jadwal aktif
               </span>
             </div>
-            {schedules.slice(0, 1).map((s) => (
-              <div key={s.id} className="p-4 md:p-6 hover:bg-surface-container-low transition-colors">
-                <div className="flex flex-col md:flex-row gap-4 md:items-center">
-                  <DateBox s={s} compact />
-                  <div className="flex-1 flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-secondary-fixed text-on-secondary-fixed rounded text-[12px] font-semibold uppercase tracking-wider">
-                        {s.type}
-                      </span>
-                      <h3 className="font-title-sm text-title-sm text-on-surface font-bold text-lg">
-                        {s.title}
-                      </h3>
-                    </div>
-                    <div className="flex flex-wrap gap-4 mt-1">
-                      <div className="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
-                        <Icon name="school" size={18} />
-                        <span>{s.kelas}</span>
+            {filtered.map((s) => {
+              const classNames = parseJsonArray(s.class_names).join(", ");
+              const supervisors = parseJsonArray(s.supervisors).join(", ");
+              return (
+                <div key={s.id} className="p-4 md:p-6 hover:bg-surface-container-low transition-colors border-b border-outline-variant last:border-b-0">
+                  <div className="flex flex-col md:flex-row gap-4 md:items-center">
+                    <DateBox dateStr={s.exam_date} compact />
+                    <div className="flex-1 flex flex-col gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`px-2 py-1 rounded text-[11px] font-semibold uppercase tracking-wider ${STATUS_BADGE[s.status]}`}>
+                          {s.exam_type}
+                        </span>
+                        <h3 className="font-title-sm text-title-sm text-on-surface font-bold">{s.title}</h3>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${STATUS_BADGE[s.status]}`}>
+                          {STATUS_LABEL[s.status]}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
-                        <Icon name="meeting_room" size={18} />
-                        <span>{s.ruang}</span>
+                      <div className="flex flex-wrap gap-3 md:gap-4">
+                        <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+                          <Icon name="schedule" size={16} />
+                          {formatTimeRange(s.start_time, s.end_time)}
+                        </span>
+                        <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+                          <Icon name="school" size={16} />
+                          {classNames}
+                        </span>
+                        <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+                          <Icon name="meeting_room" size={16} />
+                          {s.room}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-label-caps text-label-caps text-on-surface-variant">PENGAWAS:</span>
+                        <span className="font-body-sm text-body-sm text-on-surface">{supervisors}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="font-label-caps text-label-caps text-on-surface-variant">
-                        PENGAWAS:
-                      </span>
-                      <span className="font-body-sm text-body-sm text-on-surface">
-                        {s.pengawas.join(", ")}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex md:flex-col items-center justify-end">
                     <button
                       onClick={() => router.push("/ujian")}
-                      className="inline-flex items-center justify-center gap-2 bg-primary text-on-primary font-title-sm text-title-sm font-semibold px-6 py-3 rounded-lg hover:bg-primary/90 active:scale-95 transition-all duration-200 shadow-sm min-h-[44px] cursor-pointer w-full"
+                      className="inline-flex items-center justify-center gap-2 bg-primary text-on-primary font-title-sm text-title-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary/90 active:scale-95 transition-all shadow-sm min-h-[44px] cursor-pointer"
                     >
                       Mulai Ujian
-                      <Icon name="arrow_forward" size={18} />
+                      <Icon name="arrow_forward" size={16} />
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        ) : (
-          /* ===== Tampilan Admin/Guru: kelola penuh ===== */
-          <div className="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-            {/* Filters */}
-            <div className="p-4 border-b border-outline-variant bg-surface-bright flex flex-wrap gap-4 items-center">
-              <div className="flex items-center gap-2">
-                <Icon name="filter_list" className="text-on-surface-variant" size={20} />
-                <span className="font-title-sm text-title-sm text-on-surface">Filter:</span>
-              </div>
-              <select
-                name="kelasFilter"
-                value={kelasFilter}
-                onChange={(e) => setKelasFilter(e.target.value)}
-                className="bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary"
-              >
-                {KELAS_FILTERS.map((k) => (
-                  <option key={k}>{k}</option>
-                ))}
-              </select>
-              <select
-                name="mapelFilter"
-                value={mapelFilter}
-                onChange={(e) => setMapelFilter(e.target.value)}
-                className="bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 font-body-sm text-body-sm focus:ring-2 focus:ring-primary focus:border-primary"
-              >
-                {MAPEL_FILTERS.map((m) => (
-                  <option key={m}>{m}</option>
-                ))}
-              </select>
-              <div className="flex-1" />
-              <span className="font-body-sm text-body-sm text-on-surface-variant">
-                Menampilkan {filtered.length} jadwal aktif minggu ini
-              </span>
-            </div>
+        )}
 
-            {view === "daftar" ? (
-              /* ==== List view ==== */
-              <div className="divide-y divide-outline-variant">
-                {filtered.length === 0 && (
-                  <p className="p-8 text-center font-body-md text-body-md text-on-surface-variant">
-                    Tidak ada jadwal yang cocok dengan filter.
-                  </p>
-                )}
-                {filtered.map((s) => (
+        {/* Tampilan Admin/Guru: List View */}
+        {!loading && canEdit && view === "daftar" && filtered.length > 0 && (
+          <div className="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+            <div className="divide-y divide-outline-variant">
+              {filtered.map((s) => {
+                const classNames = parseJsonArray(s.class_names).join(", ");
+                const supervisors = parseJsonArray(s.supervisors).join(", ");
+                return (
                   <div key={s.id} className="p-4 hover:bg-surface-container-low transition-colors group">
                     <div className="flex flex-col md:flex-row gap-4 md:items-center">
-                      <DateBox s={s} />
-                      {/* Details */}
-                      <div className="flex-1 flex flex-col gap-2">
+                      <DateBox dateStr={s.exam_date} />
+                      <div className="flex-1 flex flex-col gap-2 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2 py-1 bg-secondary-fixed text-on-secondary-fixed rounded text-[11px] font-semibold uppercase tracking-wider">
+                            {s.exam_type}
+                          </span>
+                          <h3 className="font-title-sm text-title-sm text-on-surface font-bold truncate">{s.title}</h3>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${STATUS_BADGE[s.status]}`}>
+                            {STATUS_LABEL[s.status]}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-3 md:gap-4">
+                          <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+                            <Icon name="schedule" size={16} />
+                            {formatTimeRange(s.start_time, s.end_time)}
+                          </span>
+                          <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+                            <Icon name="school" size={16} />
+                            {classNames}
+                          </span>
+                          <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+                            <Icon name="meeting_room" size={16} />
+                            {s.room}
+                          </span>
+                        </div>
                         <div className="flex items-center gap-2">
-                          <span className="px-2 py-1 bg-secondary-fixed text-on-secondary-fixed rounded text-[12px] font-semibold uppercase tracking-wider">
-                            {s.type}
-                          </span>
-                          <h3 className="font-title-sm text-title-sm text-on-surface font-bold text-lg">
-                            {s.title}
-                          </h3>
-                        </div>
-                        <div className="flex flex-wrap gap-4 mt-1">
-                          <div className="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
-                            <Icon name="school" size={18} />
-                            <span>{s.kelas}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 font-body-sm text-body-sm text-on-surface-variant">
-                            <Icon name="meeting_room" size={18} />
-                            <span>{s.ruang}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="font-label-caps text-label-caps text-on-surface-variant">
-                            PENGAWAS:
-                          </span>
-                          <div className="flex -space-x-2">
-                            {s.pengawas.map((p, i) => (
-                              <div
-                                key={p}
-                                title={p}
-                                className={`w-7 h-7 rounded-full border-2 border-surface flex items-center justify-center text-[10px] font-bold text-white ${
-                                  i % 2 === 0 ? "bg-primary" : "bg-tertiary"
-                                }`}
-                              >
-                                {p.split(" ").map((w) => w[0]).join("").slice(0, 2)}
-                              </div>
-                            ))}
-                          </div>
-                          <span className="font-body-sm text-body-sm text-on-surface ml-1">
-                            {s.pengawas.join(", ")}
-                          </span>
+                          <span className="font-label-caps text-label-caps text-on-surface-variant">PENGAWAS:</span>
+                          <span className="font-body-sm text-body-sm text-on-surface">{supervisors}</span>
                         </div>
                       </div>
-                      {/* Actions */}
-                      <div className="flex flex-row md:flex-col gap-2 mt-4 md:mt-0 justify-end">
-                        <button className="px-4 py-2 border border-outline-variant rounded-lg font-title-sm text-title-sm text-primary hover:bg-surface-container-low transition-colors w-full md:w-auto text-center cursor-pointer active:scale-95">
-                          Edit
+                      <div className="flex flex-row md:flex-col gap-2 mt-2 md:mt-0">
+                        <button
+                          onClick={() => openEdit(s)}
+                          className="px-3 py-2 border border-outline-variant rounded-lg font-title-sm text-title-sm text-primary hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95 flex items-center gap-1"
+                        >
+                          <Icon name="edit" size={16} />
+                          <span className="hidden md:inline">Edit</span>
                         </button>
                         <button
+                          onClick={() => setDeleting(s)}
+                          className="p-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-error hover:border-error hover:bg-error-container transition-colors cursor-pointer active:scale-95"
                           aria-label={`Hapus jadwal ${s.title}`}
-                          onClick={() => setSchedules((prev) => prev.filter((x) => x.id !== s.id))}
-                          className="p-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-error hover:border-error hover:bg-error-container transition-colors hidden md:block cursor-pointer active:scale-95"
                         >
-                          <Icon name="delete" size={20} />
+                          <Icon name="delete" size={18} />
                         </button>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              /* ==== Calendar view ==== */
-              <div className="p-4 md:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-title-sm text-title-sm text-on-surface font-semibold">Oktober 2023</h3>
-                  <div className="flex items-center gap-2">
-                    <button className="p-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95">
-                      <Icon name="chevron_left" size={18} />
-                    </button>
-                    <button className="p-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors cursor-pointer active:scale-95">
-                      <Icon name="chevron_right" size={18} />
-                    </button>
-                  </div>
-                </div>
-                <div className="grid grid-cols-7 gap-1 md:gap-2">
-                  {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((d) => (
-                    <div
-                      key={d}
-                      className="text-center font-label-caps text-label-caps text-on-surface-variant py-2"
-                    >
-                      {d}
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Tampilan Admin/Guru: Calendar View */}
+        {!loading && canEdit && view === "kalender" && filtered.length > 0 && (
+          <div className="bg-surface border border-outline-variant rounded-xl shadow-sm p-4 md:p-6">
+            <div className="mb-4">
+              <h3 className="font-title-sm text-title-sm text-on-surface font-semibold">Kalender Ujian</h3>
+            </div>
+            <div className="space-y-3">
+              {filtered.map((s) => {
+                const classNames = parseJsonArray(s.class_names).join(", ");
+                const { dayName, day, month } = formatDate(s.exam_date);
+                return (
+                  <div
+                    key={s.id}
+                    className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-low transition-colors cursor-pointer"
+                    onClick={() => openEdit(s)}
+                  >
+                    <div className="w-14 h-14 bg-primary-fixed-dim rounded-lg flex flex-col items-center justify-center text-on-primary-fixed shrink-0">
+                      <span className="font-headline-md text-headline-md font-bold leading-none">{day}</span>
+                      <span className="font-label-caps text-label-caps text-[10px]">{month}</span>
                     </div>
-                  ))}
-                  {KALENDER_DAYS.map((day, i) =>
-                    day === null ? (
-                      <div key={`empty-${i}`} className="h-12 md:h-16 rounded-lg" />
-                    ) : (
-                      <button
-                        key={day}
-                        className={`h-12 md:h-16 rounded-lg border transition-colors flex flex-col items-center justify-center cursor-pointer active:scale-95 ${
-                          examDays.has(day)
-                            ? "bg-primary-fixed text-on-primary-fixed border-primary hover:bg-primary-fixed-dim"
-                            : "border-outline-variant text-on-surface hover:bg-surface-container-low"
-                        }`}
-                      >
-                        <span className="font-title-sm text-title-sm font-semibold">{day}</span>
-                        {examDays.has(day) && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1" />
-                        )}
-                      </button>
-                    )
-                  )}
-                </div>
-                <div className="flex items-center gap-4 mt-4 font-body-sm text-body-sm text-on-surface-variant">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-primary-fixed border border-primary inline-block" />{" "}
-                    Ada ujian
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded border border-outline-variant inline-block" />{" "}
-                    Tidak ada
-                  </span>
-                </div>
-              </div>
-            )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-title-sm text-title-sm text-on-surface truncate">{s.title}</h4>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-2 flex-wrap">
+                        <span>{dayName}</span>
+                        <span className="text-outline">•</span>
+                        <span>{formatTimeRange(s.start_time, s.end_time)}</span>
+                        <span className="text-outline">•</span>
+                        <span>{classNames}</span>
+                      </p>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-[10px] font-bold ${STATUS_BADGE[s.status]}`}>
+                      {STATUS_LABEL[s.status]}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
 
+      {/* ===== Modal Tambah/Edit ===== */}
+      {formOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setFormOpen(false)}
+        >
+          <div className="absolute inset-0 bg-inverse-surface/50 backdrop-blur-sm" />
+          <form
+            onSubmit={handleSubmit}
+            onClick={(e) => e.stopPropagation()}
+            className="relative bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant w-full max-w-lg max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between p-4 md:p-6 pb-3 md:pb-4 border-b border-outline-variant">
+              <div>
+                <h3 className="font-title-sm text-title-sm text-on-surface">
+                  {editing ? "Edit Jadwal Ujian" : "Tambah Jadwal Ujian"}
+                </h3>
+                <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                  {editing ? "Perbarui data jadwal ujian." : "Isi data jadwal ujian baru."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormOpen(false)}
+                className="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors"
+              >
+                <Icon name="close" size={20} />
+              </button>
+            </div>
+
+            <div className="p-4 md:p-6 space-y-4">
+              <div>
+                <label className={labelClass}>Judul Ujian</label>
+                <input
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  placeholder="contoh: Ujian Akhir Semester"
+                  className={inputClass}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Mata Pelajaran</label>
+                  <input
+                    value={form.subject}
+                    onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                    placeholder="contoh: Matematika"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Jenis Ujian</label>
+                  <select
+                    value={form.exam_type}
+                    onChange={(e) => setForm({ ...form, exam_type: e.target.value as ExamType })}
+                    className={`${inputClass} cursor-pointer`}
+                  >
+                    {EXAM_TYPES.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Tanggal Ujian</label>
+                <input
+                  type="date"
+                  value={form.exam_date}
+                  onChange={(e) => setForm({ ...form, exam_date: e.target.value })}
+                  className={inputClass}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Jam Mulai</label>
+                  <input
+                    type="time"
+                    value={form.start_time}
+                    onChange={(e) => setForm({ ...form, start_time: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Jam Selesai</label>
+                  <input
+                    type="time"
+                    value={form.end_time}
+                    onChange={(e) => setForm({ ...form, end_time: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Ruangan</label>
+                <input
+                  value={form.room}
+                  onChange={(e) => setForm({ ...form, room: e.target.value })}
+                  placeholder="contoh: Lab Komputer A"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Kelas (pisahkan koma)</label>
+                <input
+                  value={form.class_names}
+                  onChange={(e) => setForm({ ...form, class_names: e.target.value })}
+                  placeholder="contoh: XII RPL 1, XII RPL 2"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Pengawas (pisahkan koma)</label>
+                <input
+                  value={form.supervisors}
+                  onChange={(e) => setForm({ ...form, supervisors: e.target.value })}
+                  placeholder="contoh: Budi Santoso, Siti Aminah"
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Status</label>
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value as ExamStatus })}
+                  className={`${inputClass} cursor-pointer`}
+                >
+                  {STATUS_OPTIONS.map((s) => (
+                    <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className={labelClass}>Catatan (opsional)</label>
+                <textarea
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  placeholder="Catatan tambahan..."
+                  rows={2}
+                  className={`${inputClass} resize-none`}
+                />
+              </div>
+
+              {formError && (
+                <p className="flex items-center gap-2 font-body-sm text-body-sm text-error bg-error-container/50 rounded-lg px-3 py-2">
+                  <Icon name="error" size={16} filled />
+                  {formError}
+                </p>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 p-4 md:p-6 pt-2 md:pt-3 border-t border-outline-variant">
+              <button
+                type="button"
+                onClick={() => setFormOpen(false)}
+                className="px-4 md:px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container font-label-caps text-label-caps transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-5 md:px-6 py-2.5 rounded-lg bg-primary text-on-primary font-label-caps text-label-caps hover:bg-primary/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {submitting && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                {editing ? "Simpan Perubahan" : "Tambah Jadwal"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ===== Modal Konfirmasi Hapus ===== */}
+      {deleting && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setDeleting(null)}
+        >
+          <div className="absolute inset-0 bg-inverse-surface/50 backdrop-blur-sm" />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative bg-surface rounded-xl shadow-xl border border-outline-variant w-full max-w-sm p-6 text-center"
+          >
+            <div className="w-14 h-14 rounded-full bg-error-container text-on-error-container flex items-center justify-center mx-auto mb-4">
+              <Icon name="delete" size={28} filled />
+            </div>
+            <h3 className="font-headline-md text-headline-md text-on-surface mb-2">Hapus Jadwal?</h3>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mb-6">
+              Jadwal &quot;{deleting.title}&quot; akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleting(null)}
+                className="flex-1 px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container font-label-caps text-label-caps transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 px-5 py-2.5 rounded-lg bg-error text-on-error font-label-caps text-label-caps hover:bg-error/90 transition-colors cursor-pointer"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Toast ===== */}
+      {toast && (
+        <div
+          role="status"
+          className="fixed bottom-6 right-6 z-[60] flex items-center gap-2 bg-inverse-surface text-inverse-on-surface px-4 py-3 rounded-lg shadow-xl font-body-sm text-body-sm"
+        >
+          <Icon name="check_circle" size={18} filled className="text-inverse-primary" />
+          {toast}
+        </div>
+      )}
     </DashboardLayout>
   );
 }

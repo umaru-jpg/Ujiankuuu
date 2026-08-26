@@ -209,33 +209,34 @@ export default function ManagementUserPage() {
     <DashboardLayout active="management" allowedRoles={["admin"]}>
       <div className="max-w-[1280px] mx-auto">
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-stack-lg">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 md:gap-4 mb-4 md:mb-stack-lg">
           <div>
             <h2 className="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">
               Manajemen Pengguna
             </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-1">
+            <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant mt-1">
               Kelola data guru, siswa, dan administrator sistem.
             </p>
           </div>
           <button
             onClick={openCreate}
-            className="bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors px-6 py-3 rounded-lg font-title-sm text-title-sm flex items-center gap-2 shadow-sm whitespace-nowrap min-h-[44px] cursor-pointer active:scale-95 duration-200"
+            className="bg-primary text-on-primary hover:bg-on-primary-fixed-variant transition-colors px-4 md:px-6 py-2.5 md:py-3 rounded-lg font-title-sm text-title-sm flex items-center gap-2 shadow-sm whitespace-nowrap min-h-[44px] cursor-pointer active:scale-95 duration-200"
           >
             <Icon name="add" size={20} />
-            Tambah User
+            <span className="hidden sm:inline">Tambah User</span>
+            <span className="sm:hidden">Baru</span>
           </button>
         </div>
 
         {/* Filter & Search Controls */}
-        <div className="bg-surface-container-lowest border border-outline-variant shadow-sm rounded-xl p-4 mb-stack-lg">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="bg-surface-container-lowest border border-outline-variant shadow-sm rounded-xl p-3 md:p-4 mb-4 md:mb-stack-lg">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-center justify-between">
             {/* Search (mobile) */}
             <div className="w-full md:w-1/3 relative md:hidden">
               <Icon
                 name="search"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
-                size={20}
+                size={18}
               />
               <input
                 value={search}
@@ -244,7 +245,7 @@ export default function ManagementUserPage() {
                   setPage(1);
                 }}
                 placeholder="Cari nama atau email..."
-                className="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-sm text-body-sm transition-all text-on-surface placeholder:text-outline"
+                className="w-full pl-9 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary font-body-sm text-body-sm transition-all text-on-surface placeholder:text-outline"
               />
             </div>
             {/* Role filter */}
@@ -256,7 +257,7 @@ export default function ManagementUserPage() {
                     setRoleFilter(r);
                     setPage(1);
                   }}
-                  className={`whitespace-nowrap px-4 py-2 rounded-lg font-body-sm text-body-sm min-h-[44px] transition-all cursor-pointer active:scale-95 ${
+                  className={`whitespace-nowrap px-3 md:px-4 py-2 rounded-lg font-body-sm text-body-sm min-h-[40px] md:min-h-[44px] transition-all cursor-pointer active:scale-95 ${
                     roleFilter === r
                       ? "bg-primary-container text-white"
                       : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container border border-outline-variant/50"
@@ -266,9 +267,10 @@ export default function ManagementUserPage() {
                 </button>
               ))}
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface hover:bg-surface-container min-h-[44px] w-full md:w-auto justify-center cursor-pointer active:scale-95">
-              <Icon name="filter_list" size={20} />
-              Filter Lainnya
+            <button className="flex items-center gap-2 px-3 md:px-4 py-2 border border-outline-variant rounded-lg font-body-sm text-body-sm text-on-surface hover:bg-surface-container min-h-[40px] md:min-h-[44px] w-full md:w-auto justify-center cursor-pointer active:scale-95">
+              <Icon name="filter_list" size={18} />
+              <span className="hidden sm:inline">Filter Lainnya</span>
+              <span className="sm:hidden">Filter</span>
             </button>
           </div>
         </div>
@@ -279,19 +281,19 @@ export default function ManagementUserPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-outline-variant/50 bg-surface-container-low">
-                  <th className="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+                  <th className="py-3 md:py-4 px-4 md:px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
                     Nama
                   </th>
-                  <th className="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+                  <th className="py-3 md:py-4 px-4 md:px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider hidden md:table-cell">
                     Email
                   </th>
-                  <th className="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+                  <th className="py-3 md:py-4 px-4 md:px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
                     Role
                   </th>
-                  <th className="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+                  <th className="py-3 md:py-4 px-4 md:px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider hidden sm:table-cell">
                     Kelas/Dept
                   </th>
-                  <th className="py-4 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-right">
+                  <th className="py-3 md:py-4 px-4 md:px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-right">
                     Aksi
                   </th>
                 </tr>
@@ -299,8 +301,8 @@ export default function ManagementUserPage() {
               <tbody className="divide-y divide-outline-variant/30 font-body-sm text-body-sm text-on-surface">
                 {paged.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center">
-                      <Icon name="group_off" size={36} className="text-outline mx-auto mb-2" />
+                    <td colSpan={5} className="py-8 md:py-12 text-center">
+                      <Icon name="group_off" size={32} className="text-outline mx-auto mb-2" />
                       <p className="font-title-sm text-title-sm text-on-surface">
                         Tidak ada pengguna yang cocok
                       </p>
@@ -312,32 +314,37 @@ export default function ManagementUserPage() {
                 )}
                 {paged.map((u) => (
                   <tr key={u.id} className="hover:bg-surface-container-low transition-colors group">
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
+                    <td className="py-3 md:py-4 px-4 md:px-6">
+                      <div className="flex items-center gap-2 md:gap-3">
                         <div
-                          className={`w-8 h-8 rounded-full ${AVATAR_COLOR[u.role]} flex items-center justify-center font-bold text-xs shrink-0`}
+                          className={`w-7 h-7 md:w-8 md:h-8 rounded-full ${AVATAR_COLOR[u.role]} flex items-center justify-center font-bold text-[10px] md:text-xs shrink-0`}
                         >
                           {initialsOf(u.name)}
                         </div>
-                        <span className="font-semibold text-on-surface group-hover:text-primary transition-colors">
-                          {u.name}
-                        </span>
+                        <div>
+                          <span className="font-semibold text-on-surface group-hover:text-primary transition-colors text-sm md:text-base">
+                            {u.name}
+                          </span>
+                          <span className="block md:hidden font-body-sm text-body-sm text-on-surface-variant text-xs">
+                            {u.email}
+                          </span>
+                        </div>
                       </div>
                     </td>
-                    <td className="py-4 px-6 text-on-surface-variant">{u.email}</td>
-                    <td className="py-4 px-6">
+                    <td className="py-3 md:py-4 px-4 md:px-6 text-on-surface-variant hidden md:table-cell">{u.email}</td>
+                    <td className="py-3 md:py-4 px-4 md:px-6">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium ${ROLE_BADGE[u.role]}`}
+                        className={`inline-flex items-center px-2 md:px-2.5 py-0.5 rounded-full text-[10px] md:text-[12px] font-medium ${ROLE_BADGE[u.role]}`}
                       >
                         {u.role}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-on-surface-variant">{u.dept}</td>
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-3 md:py-4 px-4 md:px-6 text-on-surface-variant hidden sm:table-cell">{u.dept}</td>
+                    <td className="py-3 md:py-4 px-4 md:px-6 text-right">
                       <button
                         aria-label={`Edit ${u.name}`}
                         onClick={() => openEdit(u)}
-                        className="p-1 text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+                        className="p-1.5 text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
                       >
                         <Icon name="edit" size={18} />
                       </button>
@@ -346,7 +353,7 @@ export default function ManagementUserPage() {
                         onClick={() =>
                           setUsers((prev) => prev.filter((x) => x.id !== u.id))
                         }
-                        className="p-1 text-on-surface-variant hover:text-error transition-colors ml-2 cursor-pointer"
+                        className="p-1.5 text-on-surface-variant hover:text-error transition-colors ml-1 cursor-pointer"
                       >
                         <Icon name="delete" size={18} />
                       </button>
@@ -358,7 +365,7 @@ export default function ManagementUserPage() {
           </div>
 
           {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-outline-variant/50 bg-surface-container-lowest">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 md:px-6 py-3 md:py-4 border-t border-outline-variant/50 bg-surface-container-lowest">
             <span className="font-body-sm text-body-sm text-on-surface-variant">
               Menampilkan {rangeStart}-{rangeEnd} dari {filtered.length} pengguna
             </span>
