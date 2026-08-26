@@ -4,52 +4,11 @@ export interface User {
   id: number;
   name: string;
   username: string;
-  /** Hanya dipakai di akun demo; tidak pernah disimpan ke session browser. */
-  password?: string;
   role: Role;
   title: string;
   initial: string;
   color: string; // tailwind gradient stops for avatar
 }
-
-/**
- * Akun demo (frontend-only, tanpa backend).
- *  - admin  / admin123  -> /admin
- *  - guru   / guru123   -> /guru
- *  - siswa  / siswa123  -> /siswa
- */
-export const MOCK_USERS: User[] = [
-  {
-    id: 1,
-    name: "Admin",
-    username: "admin",
-    password: "admin123",
-    role: "admin",
-    title: "Administrator Sistem",
-    initial: "A",
-    color: "from-blue-600 to-indigo-500",
-  },
-  {
-    id: 2,
-    name: "Bpk. Budi Santoso",
-    username: "guru",
-    password: "guru123",
-    role: "guru",
-    title: "Guru Mapel RPL",
-    initial: "B",
-    color: "from-emerald-600 to-teal-500",
-  },
-  {
-    id: 3,
-    name: "Ahmad Fauzi",
-    username: "siswa",
-    password: "siswa123",
-    role: "siswa",
-    title: "X RPL 1",
-    initial: "A",
-    color: "from-violet-600 to-purple-500",
-  },
-];
 
 export const ROLE_LABEL: Record<Role, string> = {
   admin: "Admin",
@@ -63,38 +22,31 @@ export const HOME_BY_ROLE: Record<Role, string> = {
   siswa: "/siswa",
 };
 
-const SESSION_KEY = "ujiankuuu_session";
+const LEGACY_SESSION_KEY = "ujiankuuu_session";
+const SESSION_KEY = "ujiankuuu_auth_session";
 
-/** Salinan user tanpa password, aman untuk disimpan di browser. */
-function buildSession(user: User): Omit<User, "password"> {
-  return {
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    role: user.role,
-    title: user.title,
-    initial: user.initial,
-    color: user.color,
-  };
-}
+export async function login(
+  identifier: string,
+  password: string,
+  remember: boolean
+): Promise<User | null> {
+  const response = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier, password }),
+  });
 
-export function login(username: string, password: string, remember: boolean): User | null {
-  const user = MOCK_USERS.find(
-    (u) =>
-      u.username.toLowerCase() === username.trim().toLowerCase() &&
-      u.password === password
-  );
-  if (user) {
-    // Ingat Saya = localStorage (tetap ada setelah browser ditutup),
-    // jika tidak dicentang pakai sessionStorage (hilang saat tab ditutup).
-    const session = buildSession(user);
-    if (remember) {
-      localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    } else {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
-    }
-  }
-  return user ?? null;
+  if (!response.ok) return null;
+
+  const data = (await response.json()) as { user?: User };
+  if (!data.user) return null;
+
+  // Ingat Saya = localStorage (tetap ada setelah browser ditutup),
+  // jika tidak dicentang pakai sessionStorage (hilang saat tab ditutup).
+  const storage = remember ? localStorage : sessionStorage;
+  storage.setItem(SESSION_KEY, JSON.stringify(data.user));
+
+  return data.user;
 }
 
 export function getSession(): User | null {
@@ -111,5 +63,7 @@ export function getSession(): User | null {
 export function logout() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(LEGACY_SESSION_KEY);
   sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(LEGACY_SESSION_KEY);
 }

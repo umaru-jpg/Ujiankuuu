@@ -26,22 +26,24 @@ export default function LoginPage() {
     if (session) router.replace(HOME_BY_ROLE[session.role]);
   }, [router]);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setNotice(null);
     setLoading(true);
 
-    // Simulasi proses autentikasi (frontend-only)
-    setTimeout(() => {
-      const user: User | null = login(identifier, password, remember);
+    try {
+      const user: User | null = await login(identifier, password, remember);
       if (user) {
         router.push(HOME_BY_ROLE[user.role]);
       } else {
         setError("Username atau password salah. Silakan coba lagi.");
         setLoading(false);
       }
-    }, 450);
+    } catch {
+      setError("Login gagal. Pastikan backend dan database sudah berjalan.");
+      setLoading(false);
+    }
   }
 
   return (
