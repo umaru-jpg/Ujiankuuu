@@ -106,18 +106,18 @@ export default function GuruHasil() {
   return (
     <div className="max-w-[1280px] mx-auto">
       {/* ===== Header ===== */}
-      <div className="mb-stack-lg">
+      <div className="mb-4 md:mb-stack-lg">
         <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">
           Daftar Nilai Siswa
         </h1>
-        <p className="font-body-md text-body-md text-on-surface-variant">
+        <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
           Pantau dan evaluasi capaian setiap siswa dari ujian yang telah selesai.
         </p>
       </div>
 
       {/* ===== Filter / Pilih Ujian ===== */}
-      <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-stack-md mb-stack-lg">
-        <div className="flex flex-col md:flex-row md:items-end gap-4">
+      <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-3 md:p-stack-md mb-4 md:mb-stack-lg">
+        <div className="flex flex-col md:flex-row md:items-end gap-3 md:gap-4">
           <div className="flex-1">
             <label
               htmlFor="exam-select"
@@ -130,7 +130,7 @@ export default function GuruHasil() {
                 id="exam-select"
                 value={selectedId}
                 onChange={(e) => setSelectedId(e.target.value)}
-                className="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 pr-10 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
+                className="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-3 md:px-4 py-2 md:py-2.5 pr-10 font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
               >
                 {EXAMS.map((e) => (
                   <option key={e.id} value={e.id}>
@@ -157,7 +157,7 @@ export default function GuruHasil() {
                 id="status-select"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-                className="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 pr-10 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
+                className="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-3 md:px-4 py-2 md:py-2.5 pr-10 font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
               >
                 <option value="all">Semua Status</option>
                 <option value="lulus">Lulus</option>
@@ -188,7 +188,7 @@ export default function GuruHasil() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Nama atau NIS..."
-                className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high rounded-full font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                className="w-full pl-9 md:pl-10 pr-4 py-2 md:py-2.5 bg-surface-container-high rounded-full font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary transition-all"
               />
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function GuruHasil() {
       </div>
 
       {/* ===== Statistik ===== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-stack-lg">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
         <StatCard
           label="Peserta"
           value={String(stats.peserta)}
@@ -228,8 +228,8 @@ export default function GuruHasil() {
       </div>
 
       {/* ===== Tabel Nilai Per Siswa ===== */}
-      <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-stack-md">
-        <div className="flex flex-wrap justify-between items-center gap-3 mb-stack-md">
+      <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-3 md:p-stack-md">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-3 md:mb-stack-md">
           <div>
             <h3 className="font-title-sm text-title-sm text-on-surface">
               Nilai {exam.mapel} - Kelas {exam.kelas}
@@ -240,10 +240,10 @@ export default function GuruHasil() {
           </div>
           <button
             onClick={() => setSortDesc((v) => !v)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors font-label-caps text-label-caps cursor-pointer"
+            className="flex items-center gap-2 px-2 md:px-3 py-1.5 md:py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors font-label-caps text-label-caps text-xs cursor-pointer"
           >
-            <Icon name={sortDesc ? "arrow_downward" : "arrow_upward"} size={16} />
-            Urutkan Nilai
+            <Icon name={sortDesc ? "arrow_downward" : "arrow_upward"} size={14} />
+            <span className="hidden sm:inline">Urutkan Nilai</span>
           </button>
         </div>
 
@@ -251,12 +251,12 @@ export default function GuruHasil() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-outline-variant text-on-surface-variant">
-                <th className="py-3 px-4 font-label-caps text-label-caps w-14">No</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps">Nama Siswa</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps">NIS</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps">Kelas</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps">Nilai</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps">Status</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps w-10 md:w-14">No</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Nama Siswa</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden md:table-cell">NIS</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden sm:table-cell">Kelas</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Nilai</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -267,22 +267,25 @@ export default function GuruHasil() {
                     key={s.nis}
                     className="border-b border-surface-variant hover:bg-surface-container-lowest transition-colors"
                   >
-                    <td className="py-3 px-4 font-body-sm text-body-sm text-on-surface-variant">
+                    <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant">
                       {i + 1}
                     </td>
-                    <td className="py-3 px-4">
-                      <p className="font-body-md text-body-md text-on-surface font-medium">
+                    <td className="py-3 px-3 md:px-4">
+                      <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface font-medium">
                         {s.name}
                       </p>
+                      <p className="md:hidden font-body-sm text-body-sm text-on-surface-variant text-xs">
+                        {s.nis} - {s.kelas}
+                      </p>
                     </td>
-                    <td className="py-3 px-4 font-body-sm text-body-sm text-on-surface-variant">
+                    <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden md:table-cell">
                       {s.nis}
                     </td>
-                    <td className="py-3 px-4 font-body-sm text-body-sm text-on-surface-variant">
+                    <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden sm:table-cell">
                       {s.kelas}
                     </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
+                    <td className="py-3 px-3 md:px-4">
+                      <div className="flex items-center gap-1.5 md:gap-2">
                         <span
                           className={`font-title-sm text-title-sm font-bold ${
                             lulus ? "text-primary" : "text-error"
@@ -290,7 +293,7 @@ export default function GuruHasil() {
                         >
                           {s.score}
                         </span>
-                        <div className="w-16 h-1.5 rounded-full bg-surface-container-high overflow-hidden">
+                        <div className="w-12 md:w-16 h-1.5 rounded-full bg-surface-container-high overflow-hidden hidden sm:block">
                           <div
                             className={`h-full rounded-full transition-[width] duration-500 ${
                               lulus ? "bg-primary" : "bg-error"
@@ -300,16 +303,17 @@ export default function GuruHasil() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-3 md:px-4">
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-label-caps text-label-caps ${
+                        className={`inline-flex items-center gap-1 px-2 md:px-2.5 py-1 rounded-full font-label-caps text-label-caps text-xs ${
                           lulus
                             ? "bg-secondary-container text-on-secondary-container"
                             : "bg-error-container text-on-error-container"
                         }`}
                       >
-                        <Icon name={lulus ? "check" : "close"} size={14} filled />
-                        {lulus ? "Lulus" : "Tidak Lulus"}
+                        <Icon name={lulus ? "check" : "close"} size={12} filled />
+                        <span className="hidden sm:inline">{lulus ? "Lulus" : "Tidak Lulus"}</span>
+                        <span className="sm:hidden">{lulus ? "L" : "TL"}</span>
                       </span>
                     </td>
                   </tr>
@@ -317,9 +321,9 @@ export default function GuruHasil() {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center">
-                    <Icon name="search_off" size={32} className="text-outline mx-auto mb-2" />
-                    <p className="font-body-md text-body-md text-on-surface-variant">
+                  <td colSpan={6} className="py-8 md:py-12 text-center">
+                    <Icon name="search_off" size={28} className="text-outline mx-auto mb-2" />
+                    <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
                       Tidak ada siswa yang cocok dengan filter.
                     </p>
                   </td>

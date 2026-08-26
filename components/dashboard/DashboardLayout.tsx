@@ -68,7 +68,7 @@ export default function DashboardLayout({
         <SideNav active={active} role={user.role} open={navOpen} onClose={() => setNavOpen(false)} />
         <div className="flex-grow flex flex-col min-h-screen md:ml-[260px] w-full">
           <TopNav user={user} onMenuClick={() => setNavOpen(true)} />
-          <main className={`flex-grow p-4 md:p-margin-desktop ${contentClassName}`}>{children}</main>
+          <main className={`flex-grow p-3 sm:p-4 md:p-margin-desktop ${contentClassName}`}>{children}</main>
         </div>
       </div>
     </DashboardUserContext.Provider>

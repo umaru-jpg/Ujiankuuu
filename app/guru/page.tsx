@@ -92,18 +92,18 @@ export default function GuruPage() {
         <GuruWelcome />
 
         {/* Bento Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-stack-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
           {/* Stats Row */}
-          <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-4 gap-gutter">
+          <div className="lg:col-span-12 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-gutter">
             {STATS.map((stat) => (
               <div
                 key={stat.label}
-                className="bg-surface rounded-xl p-4 shadow-sm border border-outline-variant flex items-center gap-4"
+                className="bg-surface rounded-xl p-3 md:p-4 shadow-sm border border-outline-variant flex items-center gap-3 md:gap-4"
               >
                 <div
-                  className={`w-12 h-12 rounded-full ${stat.iconClass} flex items-center justify-center`}
+                  className={`w-10 h-10 md:w-12 md:h-12 rounded-full ${stat.iconClass} flex items-center justify-center`}
                 >
-                  <Icon name={stat.icon} size={24} />
+                  <Icon name={stat.icon} size={20} />
                 </div>
                 <div>
                   <p className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
@@ -116,33 +116,33 @@ export default function GuruPage() {
           </div>
 
           {/* Jadwal Ujian Mendatang */}
-          <div className="lg:col-span-7 bg-surface rounded-xl shadow-sm border border-outline-variant p-stack-md flex flex-col">
-            <div className="flex justify-between items-center mb-stack-md">
+          <div className="lg:col-span-7 bg-surface rounded-xl shadow-sm border border-outline-variant p-4 md:p-stack-md flex flex-col">
+            <div className="flex justify-between items-center mb-3 md:mb-stack-md">
               <h3 className="font-title-sm text-title-sm text-on-surface">Jadwal Ujian Mendatang</h3>
               <button className="text-primary font-label-caps text-label-caps hover:underline">
                 Lihat Semua
               </button>
             </div>
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-3 md:space-y-4">
               {SCHEDULES.map((item) => (
                 <div
                   key={item.title}
-                  className="flex items-center gap-4 p-4 rounded-lg bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-low transition-colors"
+                  className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-low transition-colors"
                 >
-                  <div className="flex-shrink-0 w-16 h-16 bg-primary-fixed-dim rounded-lg flex flex-col items-center justify-center text-on-primary-fixed">
+                  <div className="flex-shrink-0 w-12 h-12 md:w-16 md:h-16 bg-primary-fixed-dim rounded-lg flex flex-col items-center justify-center text-on-primary-fixed">
                     <span className="font-headline-md text-headline-md font-bold leading-none">
                       {item.day}
                     </span>
                     <span className="font-label-caps text-label-caps">{item.month}</span>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-title-sm text-title-sm text-on-surface">{item.title}</h4>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-title-sm text-title-sm text-on-surface truncate">{item.title}</h4>
                     <p className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-1">
                       <Icon name="schedule" size={16} /> {item.time}
                     </p>
                   </div>
                   <div>
-                    <span className="px-3 py-1 bg-surface-container-high rounded-full font-label-caps text-label-caps text-on-surface">
+                    <span className="px-2 md:px-3 py-1 bg-surface-container-high rounded-full font-label-caps text-label-caps text-on-surface text-xs">
                       Persiapan
                     </span>
                   </div>
@@ -152,18 +152,18 @@ export default function GuruPage() {
           </div>
 
           {/* Grafik Performa Siswa */}
-          <div className="lg:col-span-5 bg-surface rounded-xl shadow-sm border border-outline-variant p-stack-md flex flex-col">
-            <h3 className="font-title-sm text-title-sm text-on-surface mb-stack-md">
+          <div className="lg:col-span-5 bg-surface rounded-xl shadow-sm border border-outline-variant p-4 md:p-stack-md flex flex-col">
+            <h3 className="font-title-sm text-title-sm text-on-surface mb-3 md:mb-stack-md">
               Grafik Performa Siswa
             </h3>
-            <div className="flex-1 flex flex-col items-center justify-center relative min-h-[250px] bg-surface-container-lowest rounded-lg border border-outline-variant border-dashed">
-              <div className="w-full h-full p-4 flex items-end gap-2 justify-between">
+            <div className="flex-1 flex flex-col items-center justify-center relative min-h-[180px] md:min-h-[250px] bg-surface-container-lowest rounded-lg border border-outline-variant border-dashed">
+              <div className="w-full h-full p-3 md:p-4 flex items-end gap-2 justify-between">
                 {CHART_BARS.map((barClass, i) => (
                   <div key={i} className={`w-1/6 rounded-t-sm ${barClass}`} />
                 ))}
               </div>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <p className="font-label-caps text-label-caps text-on-surface-variant bg-surface px-2 py-1 rounded shadow-sm">
+                <p className="font-label-caps text-label-caps text-on-surface-variant bg-surface px-2 py-1 rounded shadow-sm text-xs">
                   Trend Nilai Rata-rata
                 </p>
               </div>
@@ -171,21 +171,21 @@ export default function GuruPage() {
           </div>
 
           {/* Daftar Soal Terbaru */}
-          <div className="lg:col-span-12 bg-surface rounded-xl shadow-sm border border-outline-variant p-stack-md">
-            <div className="flex justify-between items-center mb-stack-md">
+          <div className="lg:col-span-12 bg-surface rounded-xl shadow-sm border border-outline-variant p-4 md:p-stack-md">
+            <div className="flex justify-between items-center mb-3 md:mb-stack-md">
               <h3 className="font-title-sm text-title-sm text-on-surface">Daftar Soal Terbaru</h3>
-              <button className="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-caps text-label-caps flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors h-11">
-                <Icon name="add" size={16} /> Tambah Soal
+              <button className="bg-primary text-on-primary px-3 md:px-4 py-2 rounded-lg font-label-caps text-label-caps flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors h-10 md:h-11">
+                <Icon name="add" size={16} /> <span className="hidden sm:inline">Tambah Soal</span>
               </button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-outline-variant text-on-surface-variant">
-                    <th className="py-3 px-4 font-label-caps text-label-caps">Mata Pelajaran</th>
-                    <th className="py-3 px-4 font-label-caps text-label-caps">Tingkat Kesulitan</th>
-                    <th className="py-3 px-4 font-label-caps text-label-caps">Status</th>
-                    <th className="py-3 px-4 font-label-caps text-label-caps text-right">Aksi</th>
+                    <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Mata Pelajaran</th>
+                    <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden sm:table-cell">Tingkat Kesulitan</th>
+                    <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Status</th>
+                    <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -194,36 +194,36 @@ export default function GuruPage() {
                       key={q.title}
                       className="border-b border-surface-variant hover:bg-surface-container-lowest transition-colors"
                     >
-                      <td className="py-3 px-4">
-                        <p className="font-body-md text-body-md text-on-surface font-medium">
+                      <td className="py-3 px-3 md:px-4">
+                        <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface font-medium">
                           {q.title}
                         </p>
                         <p className="font-body-sm text-body-sm text-on-surface-variant">
                           {q.subject}
                         </p>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-3 md:px-4 hidden sm:table-cell">
                         <span className={`font-body-sm text-body-sm font-medium ${q.difficultyClass}`}>
                           {q.difficulty}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3 px-3 md:px-4">
                         <span className={`px-2 py-1 rounded text-xs ${q.statusClass}`}>
                           {q.status}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                      <td className="py-3 px-3 md:px-4 text-right whitespace-nowrap">
                         <button
                           aria-label={`Edit ${q.title}`}
                           className="text-primary p-2 hover:bg-primary-fixed-dim rounded-full transition-colors"
                         >
-                          <Icon name="edit" size={20} />
+                          <Icon name="edit" size={18} />
                         </button>
                         <button
                           aria-label={`Hapus ${q.title}`}
                           className="text-error p-2 hover:bg-error-container rounded-full transition-colors"
                         >
-                          <Icon name="delete" size={20} />
+                          <Icon name="delete" size={18} />
                         </button>
                       </td>
                     </tr>

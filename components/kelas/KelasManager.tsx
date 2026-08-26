@@ -190,17 +190,17 @@ export default function KelasManager() {
   return (
     <div className="max-w-[1280px] mx-auto">
       {/* ===== Header ===== */}
-      <div className="mb-stack-lg">
+      <div className="mb-4 md:mb-stack-lg">
         <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">
           Manajemen Kelas
         </h1>
-        <p className="font-body-md text-body-md text-on-surface-variant">
+        <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
           Kelola data kelas, jurusan, dan wali kelas sekolah.
         </p>
       </div>
 
       {/* ===== Statistik ===== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-stack-lg">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
         <StatCard
           label="Total Kelas"
           value={String(stats.totalKelas)}
@@ -232,8 +232,8 @@ export default function KelasManager() {
       </div>
 
       {/* ===== Toolbar ===== */}
-      <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-stack-md mb-stack-lg">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-3 md:p-stack-md mb-4 md:mb-stack-lg">
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4">
           <div className="flex-1">
             <label htmlFor="kelas-search" className={`${labelClass} sr-only`}>
               Cari Kelas
@@ -249,7 +249,7 @@ export default function KelasManager() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Cari nama kelas, jurusan, atau wali kelas..."
-                className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high rounded-full font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                className="w-full pl-9 md:pl-10 pr-4 py-2 md:py-2.5 bg-surface-container-high rounded-full font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary transition-all"
               />
             </div>
           </div>
@@ -262,7 +262,7 @@ export default function KelasManager() {
                 id="kelas-tingkat"
                 value={tingkatFilter}
                 onChange={(e) => setTingkatFilter(e.target.value)}
-                className="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-2.5 pr-10 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
+                className="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-3 md:px-4 py-2 md:py-2.5 pr-10 font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
               >
                 <option value="Semua">Semua Tingkat</option>
                 {TINGKAT_OPTIONS.map((t) => (
@@ -281,17 +281,18 @@ export default function KelasManager() {
           <div className="md:w-auto md:self-end">
             <button
               onClick={openAdd}
-              className="w-full md:w-auto bg-primary text-on-primary px-5 py-2.5 rounded-lg font-label-caps text-label-caps flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-colors cursor-pointer"
+              className="w-full md:w-auto bg-primary text-on-primary px-4 md:px-5 py-2 md:py-2.5 rounded-lg font-label-caps text-label-caps flex items-center justify-center gap-2 hover:bg-on-primary-fixed-variant transition-colors cursor-pointer"
             >
-              <Icon name="add" size={16} /> Tambah Kelas
+              <Icon name="add" size={16} /> <span className="hidden sm:inline">Tambah Kelas</span>
+              <span className="sm:hidden">Baru</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* ===== Tabel ===== */}
-      <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-stack-md">
-        <div className="mb-stack-md">
+      <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-3 md:p-stack-md">
+        <div className="mb-3 md:mb-stack-md">
           <h3 className="font-title-sm text-title-sm text-on-surface">Daftar Kelas</h3>
           <p className="font-body-sm text-body-sm text-on-surface-variant">
             {filtered.length} dari {kelas.length} kelas ditampilkan
@@ -302,12 +303,12 @@ export default function KelasManager() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-outline-variant text-on-surface-variant">
-                <th className="py-3 px-4 font-label-caps text-label-caps">Nama Kelas</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps">Tingkat</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps">Jurusan</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps">Wali Kelas</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps">Jumlah Siswa</th>
-                <th className="py-3 px-4 font-label-caps text-label-caps text-right">Aksi</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Nama Kelas</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden sm:table-cell">Tingkat</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden md:table-cell">Jurusan</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden lg:table-cell">Wali Kelas</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Jumlah Siswa</th>
+                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps text-right">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -316,58 +317,63 @@ export default function KelasManager() {
                   key={k.id}
                   className="border-b border-surface-variant hover:bg-surface-container-lowest transition-colors"
                 >
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary-fixed-dim text-on-primary-fixed flex items-center justify-center font-title-sm text-title-sm font-bold shrink-0">
+                  <td className="py-3 px-3 md:px-4">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary-fixed-dim text-on-primary-fixed flex items-center justify-center font-title-sm text-title-sm font-bold shrink-0 text-xs md:text-sm">
                         {k.nama}
                       </div>
-                      <span className="font-body-md text-body-md text-on-surface font-medium">
-                        {k.nama}
-                      </span>
+                      <div>
+                        <span className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface font-medium">
+                          {k.nama}
+                        </span>
+                        <span className="block sm:hidden font-body-sm text-body-sm text-on-surface-variant text-xs">
+                          {k.tingkat} {k.jurusan}
+                        </span>
+                      </div>
                     </div>
                   </td>
-                  <td className="py-3 px-4">
-                    <span className="px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-caps text-label-caps">
+                  <td className="py-3 px-3 md:px-4 hidden sm:table-cell">
+                    <span className="px-2 md:px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface font-label-caps text-label-caps text-xs">
                       {k.tingkat}
                     </span>
                   </td>
-                  <td className="py-3 px-4 font-body-sm text-body-sm text-on-surface-variant">
+                  <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden md:table-cell">
                     {k.jurusan}
                   </td>
-                  <td className="py-3 px-4 font-body-sm text-body-sm text-on-surface-variant">
+                  <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden lg:table-cell">
                     {k.waliKelas}
                   </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-body-md text-body-md text-on-surface font-medium">
+                  <td className="py-3 px-3 md:px-4">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <span className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface font-medium">
                         {k.jumlahSiswa}
                       </span>
-                      <span className="font-body-sm text-body-sm text-on-surface-variant">siswa</span>
+                      <span className="font-body-sm text-body-sm text-on-surface-variant text-xs">siswa</span>
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-right whitespace-nowrap">
+                  <td className="py-3 px-3 md:px-4 text-right whitespace-nowrap">
                     <button
                       onClick={() => openEdit(k)}
                       aria-label={`Edit ${k.nama}`}
-                      className="text-primary p-2 hover:bg-primary-fixed-dim rounded-full transition-colors"
+                      className="text-primary p-1.5 md:p-2 hover:bg-primary-fixed-dim rounded-full transition-colors"
                     >
-                      <Icon name="edit" size={20} />
+                      <Icon name="edit" size={18} />
                     </button>
                     <button
                       onClick={() => setDeleting(k)}
                       aria-label={`Hapus ${k.nama}`}
-                      className="text-error p-2 hover:bg-error-container rounded-full transition-colors"
+                      className="text-error p-1.5 md:p-2 hover:bg-error-container rounded-full transition-colors"
                     >
-                      <Icon name="delete" size={20} />
+                      <Icon name="delete" size={18} />
                     </button>
                   </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center">
-                    <Icon name="search_off" size={32} className="text-outline mx-auto mb-2" />
-                    <p className="font-body-md text-body-md text-on-surface-variant">
+                  <td colSpan={6} className="py-8 md:py-12 text-center">
+                    <Icon name="search_off" size={28} className="text-outline mx-auto mb-2" />
+                    <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
                       Tidak ada kelas yang cocok dengan pencarian.
                     </p>
                   </td>

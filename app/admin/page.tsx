@@ -96,17 +96,17 @@ export default function AdminDashboardPage() {
     <DashboardLayout active="dashboard" allowedRoles={["admin"]}>
       <div className="max-w-[1280px] mx-auto">
         {/* Welcome Banner */}
-        <div className="mb-stack-lg">
+        <div className="mb-4 md:mb-stack-lg">
           <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">
             Selamat Datang, {user?.name ?? "Admin"}
           </h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">
+          <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
             Ringkasan aktivitas hari ini di SMK Jakarta Pusat 1.
           </p>
         </div>
 
         {/* Bento Grid: Stats & Charts */}
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-6 mb-stack-lg">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-stack-lg">
           <StatCard label="Total Guru" value="45" icon="person" />
           <StatCard label="Total Siswa" value="850" icon="group" />
           <StatCard label="Total Mapel" value="32" icon="menu_book" />
@@ -115,10 +115,10 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Bottom Section: Table & Activity List */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Table */}
           <div className="col-span-1 lg:col-span-2 bg-surface rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden flex flex-col">
-            <div className="p-6 border-b border-outline-variant/30 flex justify-between items-center">
+            <div className="p-4 md:p-6 border-b border-outline-variant/30 flex justify-between items-center">
               <h2 className="font-title-sm text-title-sm text-on-surface">
                 Jadwal Ujian Terbaru
               </h2>
@@ -130,10 +130,10 @@ export default function AdminDashboardPage() {
               <table className="w-full text-left font-body-sm text-body-sm">
                 <thead className="bg-[#F8FAFC] text-on-surface-variant border-b border-outline-variant/30">
                   <tr>
-                    <th className="px-6 py-4 font-semibold">Mata Pelajaran</th>
-                    <th className="px-6 py-4 font-semibold">Kelas</th>
-                    <th className="px-6 py-4 font-semibold">Waktu</th>
-                    <th className="px-6 py-4 font-semibold">Status</th>
+                    <th className="px-4 md:px-6 py-3 md:py-4 font-semibold">Mata Pelajaran</th>
+                    <th className="px-4 md:px-6 py-3 md:py-4 font-semibold">Kelas</th>
+                    <th className="px-4 md:px-6 py-3 md:py-4 font-semibold">Waktu</th>
+                    <th className="px-4 md:px-6 py-3 md:py-4 font-semibold">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -142,10 +142,10 @@ export default function AdminDashboardPage() {
                       key={row.mapel}
                       className="border-b border-outline-variant/10 last:border-b-0 hover:bg-[#F8FAFC] transition-colors"
                     >
-                      <td className="px-6 py-4 font-medium text-on-surface">{row.mapel}</td>
-                      <td className="px-6 py-4 text-on-surface-variant">{row.kelas}</td>
-                      <td className="px-6 py-4 text-on-surface-variant">{row.waktu}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 md:px-6 py-3 md:py-4 font-medium text-on-surface">{row.mapel}</td>
+                      <td className="px-4 md:px-6 py-3 md:py-4 text-on-surface-variant">{row.kelas}</td>
+                      <td className="px-4 md:px-6 py-3 md:py-4 text-on-surface-variant">{row.waktu}</td>
+                      <td className="px-4 md:px-6 py-3 md:py-4">
                         <span
                           className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${row.badge}`}
                         >
@@ -160,8 +160,8 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Activity List */}
-          <div className="col-span-1 bg-surface rounded-xl p-6 shadow-sm border border-outline-variant/30 flex flex-col">
-            <h2 className="font-title-sm text-title-sm text-on-surface mb-6">
+          <div className="col-span-1 bg-surface rounded-xl p-4 md:p-6 shadow-sm border border-outline-variant/30 flex flex-col">
+            <h2 className="font-title-sm text-title-sm text-on-surface mb-4 md:mb-6">
               Aktivitas Terbaru
             </h2>
             <div className="flex flex-col gap-6 relative before:absolute before:inset-0 before:ml-[15px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-outline-variant/30 before:to-transparent">
