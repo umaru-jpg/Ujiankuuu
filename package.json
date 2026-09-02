@@ -9,6 +9,7 @@
     "db:migrate": "node migrations/001_initial_schema.js",
     "db:migrate:jadwal": "node migrations/002_jadwal_ujian_schema.js",
     "db:migrate:hasil": "node migrations/003_hasil_ujian_schema.js",
+    "db:migrate:questions": "node migrations/003_questions_level_options.js",
     "db:migrate:kelas": "node migrations/004_kelas_seed.js"
   },
   "dependencies": {
@@ -17,7 +18,8 @@
     "next": "^14.2.5",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20.14.15",

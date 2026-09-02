@@ -58,11 +58,8 @@ interface SoalGroup {
   mapel: string;
   kelas: string;
   total: number;
-  published: number;
-  draft: number;
   pilihanGanda: number;
   essay: number;
-  latestAt: string;
   authors: string[];
 }
 
@@ -157,22 +154,31 @@ interface ImportedRow {
   opsiB: string;
   opsiC: string;
   opsiD: string;
+  opsiE: string;
   kunci: string;
 }
 
 // Generate Excel template as a downloadable blob
 function generateTemplate(): Blob {
-  const headers = ["No", "Soal", "Tipe (PG/Essay)", "Opsi A", "Opsi B", "Opsi C", "Opsi D", "Kunci Jawaban (A/B/C/D)"];
-  const sampleRows = [
-    [1, "2 + 2 = ...", "PG", "3", "4", "5", "6", "B"],
-    [2, "Sebutkan nama ibu kota Indonesia!", "Essay", "", "", "", "", "Jakarta"],
+  const instructions = [
+    "Petunjuk: Untuk soal PG, opsi jawaban fleksibel. Isi Opsi A-D jika hanya sampai D, atau isi Opsi A-E jika sampai E. Opsi E boleh dikosongkan. Kunci jawaban isi A, B, C, D, atau E sesuai opsi yang tersedia.",
   ];
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
+  const headers = ["No", "Soal", "Tipe (PG/Essay)", "Opsi A", "Opsi B", "Opsi C", "Opsi D", "Opsi E", "Kunci Jawaban (A/B/C/D/E)"];
+  const sampleRows = [
+    [1, "2 + 2 = ...", "PG", "3", "4", "5", "6", "7", "B"],
+    [2, "Sebutkan nama ibu kota Indonesia!", "Essay", "", "", "", "", "", "Jakarta"],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet([instructions, [], headers, ...sampleRows]);
+  if (ws.A1) {
+    ws.A1.s = { font: { bold: true } };
+  }
+  ws["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } }];
   // Set column widths
   ws["!cols"] = [
     { wch: 5 },
     { wch: 40 },
     { wch: 14 },
+    { wch: 20 },
     { wch: 20 },
     { wch: 20 },
     { wch: 20 },
@@ -195,9 +201,14 @@ function parseExcelFile(file: File): Promise<ImportedRow[]> {
         const wb = XLSX.read(data, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows: unknown[][] = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        // Skip header row, filter empty rows
+        // Skip optional instruction and header rows, filter empty rows
         const result: ImportedRow[] = [];
-        for (let i = 1; i < rows.length; i++) {
+        const firstDataRow = rows.findIndex((row) => {
+          const firstCell = String(row?.[0] ?? "").trim().toLowerCase();
+          return firstCell === "no";
+        }) + 1;
+        const startRow = firstDataRow > 0 ? firstDataRow : 1;
+        for (let i = startRow; i < rows.length; i++) {
           const r = rows[i];
           if (!r || r.length < 2) continue;
           const soal = String(r[1] ?? "").trim();
@@ -210,7 +221,8 @@ function parseExcelFile(file: File): Promise<ImportedRow[]> {
             opsiB: String(r[4] ?? "").trim(),
             opsiC: String(r[5] ?? "").trim(),
             opsiD: String(r[6] ?? "").trim(),
-            kunci: String(r[7] ?? "").trim().toUpperCase(),
+            opsiE: String(r[7] ?? "").trim(),
+            kunci: String(r[8] ?? "").trim().toUpperCase(),
           });
         }
         resolve(result);
@@ -321,8 +333,6 @@ export default function BankSoalPage() {
     });
   }, [soals, mapelFilter, kelasFilter, statusFilter, isAdmin, user?.id]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages);
   const groupedSoals = useMemo(() => {
     const groups = new Map<string, SoalGroup>();
 
@@ -336,22 +346,16 @@ export default function BankSoalPage() {
           mapel: soal.mapel,
           kelas: soal.kelas,
           total: 1,
-          published: soal.status === "Published" ? 1 : 0,
-          draft: soal.status === "Draft" ? 1 : 0,
           pilihanGanda: soal.tipe === "Pilihan Ganda" ? 1 : 0,
           essay: soal.tipe === "Essay" ? 1 : 0,
-          latestAt: soal.id.toString(),
           authors: [soal.penulis],
         });
         continue;
       }
 
       existing.total += 1;
-      existing.published += soal.status === "Published" ? 1 : 0;
-      existing.draft += soal.status === "Draft" ? 1 : 0;
       existing.pilihanGanda += soal.tipe === "Pilihan Ganda" ? 1 : 0;
       existing.essay += soal.tipe === "Essay" ? 1 : 0;
-      existing.latestAt = String(Math.max(Number(existing.latestAt), soal.id));
       if (!existing.authors.includes(soal.penulis)) existing.authors.push(soal.penulis);
     }
 
@@ -627,13 +631,13 @@ export default function BankSoalPage() {
     for (let i = 0; i < validRows.length; i++) {
       const r = validRows[i];
       if (r.tipe === "PG") {
-        const opts = [r.opsiA, r.opsiB, r.opsiC, r.opsiD].filter((o) => o.trim());
+        const opts = [r.opsiA, r.opsiB, r.opsiC, r.opsiD, r.opsiE].filter((o) => o.trim());
         if (opts.length < 2) {
           alert(`Soal ke-${r.no}: Pilihan Ganda minimal harus punya 2 opsi.`);
           return;
         }
-        if (!r.kunci || !"ABCD".includes(r.kunci)) {
-          alert(`Soal ke-${r.no}: Kunci jawaban harus A, B, C, atau D.`);
+        if (!r.kunci || !"ABCDE".includes(r.kunci)) {
+          alert(`Soal ke-${r.no}: Kunci jawaban harus A, B, C, D, atau E.`);
           return;
         }
       }
@@ -648,7 +652,7 @@ export default function BankSoalPage() {
 
       const questionsPayload = validRows.map((r) => {
         const isPG = r.tipe === "PG";
-        const rawOpts = [r.opsiA, r.opsiB, r.opsiC, r.opsiD];
+        const rawOpts = [r.opsiA, r.opsiB, r.opsiC, r.opsiD, r.opsiE];
         const opts = rawOpts
           .map((text, idx) => ({
             option_text: text.trim(),
@@ -686,6 +690,7 @@ export default function BankSoalPage() {
       setImportFile(null);
       setImportPreview([]);
       setImportError(null);
+      setSelectedGroupKey(null);
       setPage(1);
       await fetchQuestions();
       const data = await res.json();
@@ -864,25 +869,17 @@ export default function BankSoalPage() {
                         <p className="font-title-sm text-title-sm text-on-surface">{group.total}</p>
                         <p className="font-label-caps text-label-caps text-on-surface-variant">SOAL</p>
                       </div>
-                      <div className="rounded-lg bg-green-50 p-3">
-                        <p className="font-title-sm text-title-sm text-green-700">{group.published}</p>
-                        <p className="font-label-caps text-label-caps text-green-700">PUB</p>
+                      <div className="rounded-lg bg-secondary-container p-3">
+                        <p className="font-title-sm text-title-sm text-on-secondary-fixed">{group.pilihanGanda}</p>
+                        <p className="font-label-caps text-label-caps text-on-secondary-fixed">PG</p>
                       </div>
                       <div className="rounded-lg bg-surface-container-low p-3">
-                        <p className="font-title-sm text-title-sm text-on-surface">{group.draft}</p>
-                        <p className="font-label-caps text-label-caps text-on-surface-variant">DRAFT</p>
+                        <p className="font-title-sm text-title-sm text-on-surface">{group.essay}</p>
+                        <p className="font-label-caps text-label-caps text-on-surface-variant">ESSAY</p>
                       </div>
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-on-surface-variant">
-                      <span className="inline-flex items-center gap-1 rounded-md bg-secondary-container px-2 py-1 text-on-secondary-fixed">
-                        <Icon name="radio_button_checked" size={14} />
-                        {group.pilihanGanda} PG
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-md bg-surface-container-high px-2 py-1">
-                        <Icon name="subject" size={14} />
-                        {group.essay} Essay
-                      </span>
                       <span className="truncate">
                         {group.authors.slice(0, 2).join(", ")}
                         {group.authors.length > 2 ? ` +${group.authors.length - 2}` : ""}
@@ -913,11 +910,13 @@ export default function BankSoalPage() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    <span className="rounded-md bg-green-100 px-2.5 py-1 font-label-caps text-label-caps text-green-800">
-                      {selectedGroup.published} PUBLISHED
+                    <span className="inline-flex items-center gap-1 rounded-md bg-secondary-container px-2.5 py-1 font-label-caps text-label-caps text-on-secondary-fixed">
+                      <Icon name="radio_button_checked" size={14} />
+                      {selectedGroup.pilihanGanda} PG
                     </span>
-                    <span className="rounded-md bg-surface-container-high px-2.5 py-1 font-label-caps text-label-caps text-on-surface-variant">
-                      {selectedGroup.draft} DRAFT
+                    <span className="inline-flex items-center gap-1 rounded-md bg-surface-container-high px-2.5 py-1 font-label-caps text-label-caps text-on-surface-variant">
+                      <Icon name="subject" size={14} />
+                      {selectedGroup.essay} ESSAY
                     </span>
                   </div>
                 </div>
@@ -1364,7 +1363,7 @@ export default function BankSoalPage() {
                 <div className="flex-1">
                   <p className="font-title-sm text-title-sm text-on-surface">Download Template Excel</p>
                   <p className="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
-                    Format kolom: No | Soal | Tipe (PG/Essay) | Opsi A | Opsi B | Opsi C | Opsi D | Kunci Jawaban
+                    Format kolom: No | Soal | Tipe (PG/Essay) | Opsi A | Opsi B | Opsi C | Opsi D | Opsi E | Kunci Jawaban
                   </p>
                 </div>
                 <button
@@ -1519,6 +1518,7 @@ export default function BankSoalPage() {
                                   <span>B: {row.opsiB || "-"}</span>
                                   <span>C: {row.opsiC || "-"}</span>
                                   <span>D: {row.opsiD || "-"}</span>
+                                  <span>E: {row.opsiE || "-"}</span>
                                 </div>
                               )}
                             </td>
