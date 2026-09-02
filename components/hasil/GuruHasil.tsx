@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import StatCard from "@/components/StatCard";
+import { getSession } from "@/lib/auth";
 
-/** KKM (Kriteria Ketuntasan Minimal) untuk status Lulus/Tidak. */
 const KKM = 75;
 
 interface StudentResult {
@@ -22,58 +22,58 @@ interface ExamResult {
   students: StudentResult[];
 }
 
-/** Data mock hasil ujian (frontend-only). */
-const EXAMS: ExamResult[] = [
-  {
-    id: "mtk-xa",
-    mapel: "Matematika Dasar",
-    kelas: "X-A",
-    date: "15 Okt 2026",
-    students: [
-      { nis: "2026001", name: "Ahmad Fauzi", kelas: "X-A", score: 92 },
-      { nis: "2026002", name: "Bunga Lestari", kelas: "X-A", score: 88 },
-      { nis: "2026003", name: "Citra Dewi", kelas: "X-A", score: 76 },
-      { nis: "2026004", name: "Dimas Prasetyo", kelas: "X-A", score: 95 },
-      { nis: "2026005", name: "Eka Saputri", kelas: "X-A", score: 61 },
-      { nis: "2026006", name: "Fajar Ramadhan", kelas: "X-A", score: 80 },
-      { nis: "2026007", name: "Gita Permatasari", kelas: "X-A", score: 72 },
-      { nis: "2026008", name: "Hendra Wijaya", kelas: "X-A", score: 54 },
-      { nis: "2026009", name: "Intan Ayu", kelas: "X-A", score: 89 },
-      { nis: "2026010", name: "Joko Susilo", kelas: "X-A", score: 66 },
-    ],
-  },
-  {
-    id: "fis-xib",
-    mapel: "Fisika Terapan",
-    kelas: "XI-B",
-    date: "16 Okt 2026",
-    students: [
-      { nis: "2024001", name: "Kevin Hartono", kelas: "XI-B", score: 84 },
-      { nis: "2024002", name: "Laras Melati", kelas: "XI-B", score: 91 },
-      { nis: "2024003", name: "Maya Anggraini", kelas: "XI-B", score: 58 },
-      { nis: "2024004", name: "Naufal Hakim", kelas: "XI-B", score: 77 },
-      { nis: "2024005", name: "Olivia Chandra", kelas: "XI-B", score: 95 },
-      { nis: "2024006", name: "Putra Wijaya", kelas: "XI-B", score: 69 },
-      { nis: "2024007", name: "Ratna Sari", kelas: "XI-B", score: 82 },
-      { nis: "2024008", name: "Surya Pratama", kelas: "XI-B", score: 47 },
-    ],
-  },
-];
-
 export default function GuruHasil() {
-  const [selectedId, setSelectedId] = useState(EXAMS[0].id);
+  const [exams, setExams] = useState<ExamResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState("");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "lulus" | "tidak">("all");
   const [sortDesc, setSortDesc] = useState(true);
 
-  const exam = EXAMS.find((e) => e.id === selectedId) ?? EXAMS[0];
+  // Fetch data from API
+  useEffect(() => {
+    let cancelled = false;
 
-  // Reset pencarian saat berpindah ujian agar tidak menampilkan hasil kosong secara membingungkan.
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const user = getSession();
+        const params = new URLSearchParams();
+        if (user?.id) {
+          params.set("userId", String(user.id));
+        }
+
+        const res = await fetch(`/api/hasil/guru?${params.toString()}`);
+        if (!res.ok) throw new Error("Gagal mengambil data");
+
+        const data = await res.json();
+        if (!cancelled) {
+          const examList = data.exams ?? [];
+          setExams(examList);
+          if (examList.length > 0 && !selectedId) {
+            setSelectedId(examList[0].id);
+          }
+        }
+      } catch (err) {
+        console.error("Fetch guru hasil error:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchData();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const exam = exams.find((e) => e.id === selectedId) ?? exams[0];
+
   useEffect(() => {
     setQuery("");
   }, [selectedId]);
 
   const filtered = useMemo(() => {
+    if (!exam) return [];
     const q = query.trim().toLowerCase();
     let list = exam.students.filter((s) => {
       const matchQuery = !q || s.name.toLowerCase().includes(q) || s.nis.includes(q);
@@ -89,6 +89,7 @@ export default function GuruHasil() {
   }, [exam, query, statusFilter, sortDesc]);
 
   const stats = useMemo(() => {
+    if (!exam) return { peserta: 0, rata: "0.0", tertinggi: 0, terendah: 0, lulus: 0, pct: 0 };
     const scores = exam.students.map((s) => s.score);
     const count = scores.length;
     const rata = count ? (scores.reduce((a, b) => a + b, 0) / count).toFixed(1) : "0.0";
@@ -102,6 +103,47 @@ export default function GuruHasil() {
       pct: count ? Math.round((lulus / count) * 100) : 0,
     };
   }, [exam]);
+
+  if (loading) {
+    return (
+      <div className="max-w-[1280px] mx-auto">
+        <div className="mb-4 md:mb-stack-lg">
+          <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">
+            Daftar Nilai Siswa
+          </h1>
+          <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
+            Memuat data...
+          </p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-24 bg-surface rounded-xl animate-pulse border border-outline-variant" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!exam) {
+    return (
+      <div className="max-w-[1280px] mx-auto">
+        <div className="mb-4 md:mb-stack-lg">
+          <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">
+            Daftar Nilai Siswa
+          </h1>
+          <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
+            Pantau dan evaluasi capaian setiap siswa dari ujian yang telah selesai.
+          </p>
+        </div>
+        <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-stack-lg text-center">
+          <Icon name="inbox" size={40} className="text-outline mx-auto mb-3" />
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Belum ada data hasil ujian yang tersedia.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[1280px] mx-auto">
@@ -132,7 +174,7 @@ export default function GuruHasil() {
                 onChange={(e) => setSelectedId(e.target.value)}
                 className="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-3 md:px-4 py-2 md:py-2.5 pr-10 font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
               >
-                {EXAMS.map((e) => (
+                {exams.map((e) => (
                   <option key={e.id} value={e.id}>
                     {e.mapel} - {e.kelas} ({e.date})
                   </option>

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import StatCard from "@/components/StatCard";
 
@@ -21,91 +21,67 @@ interface ClassSummary {
   lulus: number;
 }
 
-/** Data mock per mata pelajaran (frontend-only). */
-const DATA_BY_MAPEL: Record<string, ClassSummary[]> = {
-  Matematika: [
-    { kelas: "X-A", peserta: 32, rata: 78.5, tertinggi: 98, terendah: 45, lulus: 25 },
-    { kelas: "X-B", peserta: 30, rata: 82.0, tertinggi: 100, terendah: 55, lulus: 26 },
-    { kelas: "XI-A", peserta: 28, rata: 75.3, tertinggi: 92, terendah: 40, lulus: 19 },
-    { kelas: "XI-B", peserta: 31, rata: 81.4, tertinggi: 99, terendah: 52, lulus: 26 },
-    { kelas: "XII-A", peserta: 29, rata: 86.2, tertinggi: 100, terendah: 60, lulus: 27 },
-    { kelas: "XII-B", peserta: 27, rata: 79.8, tertinggi: 95, terendah: 48, lulus: 22 },
-  ],
-  Fisika: [
-    { kelas: "X-A", peserta: 31, rata: 74.1, tertinggi: 94, terendah: 38, lulus: 20 },
-    { kelas: "X-B", peserta: 29, rata: 79.6, tertinggi: 97, terendah: 50, lulus: 23 },
-    { kelas: "XI-A", peserta: 28, rata: 71.8, tertinggi: 90, terendah: 35, lulus: 17 },
-    { kelas: "XI-B", peserta: 30, rata: 80.2, tertinggi: 98, terendah: 51, lulus: 25 },
-    { kelas: "XII-A", peserta: 28, rata: 84.5, tertinggi: 100, terendah: 58, lulus: 26 },
-    { kelas: "XII-B", peserta: 26, rata: 76.9, tertinggi: 93, terendah: 42, lulus: 19 },
-  ],
-  "Bahasa Indonesia": [
-    { kelas: "X-A", peserta: 32, rata: 81.3, tertinggi: 99, terendah: 52, lulus: 27 },
-    { kelas: "X-B", peserta: 30, rata: 83.7, tertinggi: 100, terendah: 60, lulus: 27 },
-    { kelas: "XI-A", peserta: 28, rata: 78.9, tertinggi: 96, terendah: 48, lulus: 22 },
-    { kelas: "XI-B", peserta: 31, rata: 82.6, tertinggi: 100, terendah: 55, lulus: 26 },
-    { kelas: "XII-A", peserta: 29, rata: 87.1, tertinggi: 100, terendah: 65, lulus: 28 },
-    { kelas: "XII-B", peserta: 27, rata: 80.4, tertinggi: 97, terendah: 50, lulus: 23 },
-  ],
-  "Basis Data": [
-    { kelas: "X-A", peserta: 32, rata: 76.2, terendah: 41, tertinggi: 95, lulus: 23 },
-    { kelas: "X-B", peserta: 30, rata: 80.5, terendah: 53, tertinggi: 98, lulus: 25 },
-    { kelas: "XI-A", peserta: 28, rata: 72.9, terendah: 36, tertinggi: 91, lulus: 18 },
-    { kelas: "XI-B", peserta: 31, rata: 79.1, terendah: 49, tertinggi: 97, lulus: 24 },
-    { kelas: "XII-A", peserta: 29, rata: 85.6, terendah: 61, tertinggi: 100, lulus: 27 },
-    { kelas: "XII-B", peserta: 27, rata: 77.3, terendah: 44, tertinggi: 94, lulus: 20 },
-  ],
-};
+interface DistributionItem {
+  range_label: string;
+  count: number;
+}
 
-const MAPEL_OPTIONS = ["Semua Mapel", ...Object.keys(DATA_BY_MAPEL)];
 const KKM = 75;
-/** Ambang tingkat kelulusan kelas yang dianggap baik (%). */
 const PASS_RATE_OK = 75;
-
-/** Rentang distribusi nilai (label + jumlah siswa per mapel terpilih). */
 const DISTRIBUTION_RANGES = ["≤50", "51-60", "61-70", "71-80", "81-90", "91-100"];
-const DISTRIBUTION_BY_MAPEL: Record<string, number[]> = {
-  Matematika: [12, 28, 45, 78, 92, 64],
-  Fisika: [18, 35, 52, 70, 80, 44],
-  "Bahasa Indonesia": [8, 20, 38, 82, 105, 76],
-  "Basis Data": [15, 30, 48, 74, 88, 54],
-};
 
 export default function AdminHasil() {
   const [mapel, setMapel] = useState("Semua Mapel");
   const [kelasFilter, setKelasFilter] = useState("Semua Kelas");
   const [periode, setPeriode] = useState("Semester Ganjil 2026/2027");
 
-  const kelasOptions = useMemo(() => {
-    const base = mapel === "Semua Mapel" ? DATA_BY_MAPEL.Matematika : DATA_BY_MAPEL[mapel];
-    return ["Semua Kelas", ...base.map((c) => c.kelas)];
+  const [summaries, setSummaries] = useState<ClassSummary[]>([]);
+  const [distribution, setDistribution] = useState<DistributionItem[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [totalExams, setTotalExams] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const MAPEL_OPTIONS = useMemo(
+    () => ["Semua Mapel", ...subjects],
+    [subjects]
+  );
+
+  // Fetch data from API
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (mapel !== "Semua Mapel") {
+          params.set("subject", mapel);
+        }
+
+        const res = await fetch(`/api/hasil?${params.toString()}`);
+        if (!res.ok) throw new Error("Gagal mengambil data");
+
+        const data = await res.json();
+        if (!cancelled) {
+          setSummaries(data.summaries ?? []);
+          setDistribution(data.distribution ?? []);
+          setSubjects(data.subjects ?? []);
+          setTotalExams(data.totalExams ?? 0);
+        }
+      } catch (err) {
+        console.error("Fetch admin hasil error:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchData();
+    return () => { cancelled = true; };
   }, [mapel]);
 
-  const summaries = useMemo(() => {
-    if (mapel === "Semua Mapel") {
-      // Gabungkan semua mapel: rata-rata per kelas = rata-rata dari semua mapel.
-      const all = DATA_BY_MAPEL;
-      const kelasList = all.Matematika.map((c) => c.kelas);
-      const kelasSet = kelasList.filter((k, i) => kelasList.indexOf(k) === i);
-      return kelasSet.map((kelas) => {
-        const rows = Object.values(all)
-          .map((list) => list.find((c) => c.kelas === kelas))
-          .filter((c): c is ClassSummary => Boolean(c));
-        const rata = rows.reduce((a, c) => a + c.rata, 0) / rows.length;
-        const peserta = rows[0]?.peserta ?? 0;
-        const lulus = rows.reduce((a, c) => a + c.lulus, 0) / rows.length;
-        return {
-          kelas,
-          peserta,
-          rata: Math.round(rata * 10) / 10,
-          tertinggi: Math.max(...rows.map((c) => c.tertinggi)),
-          terendah: Math.min(...rows.map((c) => c.terendah)),
-          lulus: Math.round(lulus),
-        } satisfies ClassSummary;
-      });
-    }
-    return DATA_BY_MAPEL[mapel];
-  }, [mapel]);
+  const kelasOptions = useMemo(() => {
+    return ["Semua Kelas", ...summaries.map((c) => c.kelas)];
+  }, [summaries]);
 
   const filtered = useMemo(
     () =>
@@ -129,9 +105,9 @@ export default function AdminHasil() {
       rata,
       tertinggi,
       pct: peserta > 0 ? Math.round((lulus / peserta) * 100) : 0,
-      ujian: mapel === "Semua Mapel" ? Object.keys(DATA_BY_MAPEL).length * 6 : summaries.length,
+      ujian: totalExams,
     };
-  }, [filtered, mapel, summaries.length]);
+  }, [filtered, totalExams]);
 
   const bestKelas = useMemo(() => {
     if (filtered.length === 0) return null;
@@ -144,14 +120,9 @@ export default function AdminHasil() {
       classLabels: sorted.map((c) => c.kelas),
       classValues: sorted.map((c) => c.rata),
       distributionLabels: DISTRIBUTION_RANGES,
-      distributionValues:
-        mapel === "Semua Mapel"
-          ? Object.values(DISTRIBUTION_BY_MAPEL).reduce((acc, arr) =>
-              acc.map((v, i) => v + arr[i])
-            )
-          : DISTRIBUTION_BY_MAPEL[mapel],
+      distributionValues: distribution.map((d) => d.count),
     };
-  }, [mapel, summaries]);
+  }, [summaries, distribution]);
 
   return (
     <div className="max-w-[1280px] mx-auto">
@@ -253,148 +224,173 @@ export default function AdminHasil() {
         </div>
       </div>
 
+      {/* ===== Loading State ===== */}
+      {loading && (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-24 bg-surface rounded-xl animate-pulse border border-outline-variant" />
+          ))}
+        </div>
+      )}
+
       {/* ===== Statistik ===== */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
-        <StatCard
-          label="Total Ujian"
-          value={String(stats.ujian)}
-          icon="assignment"
-          iconClass="bg-primary-container text-on-primary-container"
-          sub="ujian telah selesai"
-        />
-        <StatCard
-          label="Total Peserta"
-          value={String(stats.peserta)}
-          icon="group"
-          iconClass="bg-secondary-container text-on-secondary-container"
-          sub="seluruh siswa peserta"
-        />
-        <StatCard
-          label="Rata-rata"
-          value={stats.rata}
-          icon="insights"
-          iconClass="bg-tertiary-container text-on-tertiary-container"
-          sub="nilai keseluruhan"
-        />
-        <StatCard
-          label="Tingkat Kelulusan"
-          value={`${stats.pct}%`}
-          icon="task_alt"
-          iconClass="bg-surface-tint text-on-primary"
-          sub={`${stats.lulus} siswa lulus (KKM ${KKM})`}
-        />
-      </div>
+      {!loading && (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
+          <StatCard
+            label="Total Ujian"
+            value={String(stats.ujian)}
+            icon="assignment"
+            iconClass="bg-primary-container text-on-primary-container"
+            sub="ujian telah selesai"
+          />
+          <StatCard
+            label="Total Peserta"
+            value={String(stats.peserta)}
+            icon="group"
+            iconClass="bg-secondary-container text-on-secondary-container"
+            sub="seluruh siswa peserta"
+          />
+          <StatCard
+            label="Rata-rata"
+            value={stats.rata}
+            icon="insights"
+            iconClass="bg-tertiary-container text-on-tertiary-container"
+            sub="nilai keseluruhan"
+          />
+          <StatCard
+            label="Tingkat Kelulusan"
+            value={`${stats.pct}%`}
+            icon="task_alt"
+            iconClass="bg-surface-tint text-on-primary"
+            sub={`${stats.lulus} siswa lulus (KKM ${KKM})`}
+          />
+        </div>
+      )}
 
       {/* ===== Grafik ===== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
-        <AdminHasilCharts
-          classLabels={chartData.classLabels}
-          classValues={chartData.classValues}
-          distributionLabels={chartData.distributionLabels}
-          distributionValues={chartData.distributionValues}
-        />
-      </div>
+      {!loading && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
+          <AdminHasilCharts
+            classLabels={chartData.classLabels}
+            classValues={chartData.classValues}
+            distributionLabels={chartData.distributionLabels}
+            distributionValues={chartData.distributionValues}
+          />
+        </div>
+      )}
 
       {/* ===== Tabel Rekap per Kelas ===== */}
-      <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-3 md:p-stack-md">
-        <div className="flex flex-wrap justify-between items-center gap-3 mb-3 md:mb-stack-md">
-          <div>
-            <h3 className="font-title-sm text-title-sm text-on-surface">Rekap per Kelas</h3>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              {filtered.length} kelas ditampilkan
-            </p>
+      {!loading && (
+        <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-3 md:p-stack-md">
+          <div className="flex flex-wrap justify-between items-center gap-3 mb-3 md:mb-stack-md">
+            <div>
+              <h3 className="font-title-sm text-title-sm text-on-surface">Rekap per Kelas</h3>
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                {filtered.length} kelas ditampilkan
+              </p>
+            </div>
+            {bestKelas && (
+              <span className="inline-flex items-center gap-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-label-caps text-label-caps text-xs">
+                <Icon name="emoji_events" filled size={14} />
+                Terbaik: {bestKelas.kelas} (rata-rata {bestKelas.rata})
+              </span>
+            )}
           </div>
-          {bestKelas && (
-            <span className="inline-flex items-center gap-1.5 px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-label-caps text-label-caps text-xs">
-              <Icon name="emoji_events" filled size={14} />
-              Terbaik: {bestKelas.kelas} (rata-rata {bestKelas.rata})
-            </span>
-          )}
-        </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-outline-variant text-on-surface-variant">
-                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Kelas</th>
-                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden sm:table-cell">Peserta</th>
-                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Rata-rata</th>
-                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden md:table-cell">Tertinggi</th>
-                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden md:table-cell">Terendah</th>
-                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Kelulusan</th>
-                <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((c) => {
-                const pct = c.peserta > 0 ? Math.round((c.lulus / c.peserta) * 100) : 0;
-                const isBest = bestKelas?.kelas === c.kelas;
-                return (
-                  <tr
-                    key={c.kelas}
-                    className="border-b border-surface-variant hover:bg-surface-container-lowest transition-colors"
-                  >
-                    <td className="py-3 px-3 md:px-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface font-medium">
-                          {c.kelas}
-                        </span>
-                        {isBest && (
-                          <span className="inline-flex items-center gap-0.5 px-1.5 md:px-2 py-0.5 rounded-full bg-primary-fixed-dim text-on-primary-fixed text-[9px] md:text-[11px] font-bold uppercase tracking-wider">
-                            <Icon name="star" filled size={10} />
-                            Terbaik
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden sm:table-cell">
-                      {c.peserta}
-                    </td>
-                    <td className="py-3 px-3 md:px-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-title-sm text-title-sm font-bold text-primary">
-                          {c.rata}
-                        </span>
-                        <div className="w-16 h-1.5 rounded-full bg-surface-container-high overflow-hidden hidden sm:block">
-                          <div
-                            className="h-full rounded-full bg-primary transition-[width] duration-500"
-                            style={{ width: `${Math.min(c.rata, 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden md:table-cell">
-                      {c.tertinggi}
-                    </td>
-                    <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden md:table-cell">
-                      {c.terendah}
-                    </td>
-                    <td className="py-3 px-3 md:px-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 md:px-2.5 py-1 rounded-full font-label-caps text-label-caps text-xs ${
-                          pct >= PASS_RATE_OK
-                            ? "bg-secondary-container text-on-secondary-container"
-                            : "bg-surface-container-high text-on-surface"
-                        }`}
-                      >
-                        {pct}%
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 md:px-4 text-right whitespace-nowrap">
-                      <button
-                        aria-label={`Detail ${c.kelas}`}
-                        className="text-primary p-1.5 md:p-2 hover:bg-primary-fixed-dim rounded-full transition-colors"
-                      >
-                        <Icon name="visibility" size={18} />
-                      </button>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-outline-variant text-on-surface-variant">
+                  <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Kelas</th>
+                  <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden sm:table-cell">Peserta</th>
+                  <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Rata-rata</th>
+                  <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden md:table-cell">Tertinggi</th>
+                  <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps hidden md:table-cell">Terendah</th>
+                  <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps">Kelulusan</th>
+                  <th className="py-3 px-3 md:px-4 font-label-caps text-label-caps text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-8 md:py-12 text-center">
+                      <Icon name="inbox" size={28} className="text-outline mx-auto mb-2" />
+                      <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
+                        Belum ada data hasil ujian untuk filter ini.
+                      </p>
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                )}
+                {filtered.map((c) => {
+                  const pct = c.peserta > 0 ? Math.round((c.lulus / c.peserta) * 100) : 0;
+                  const isBest = bestKelas?.kelas === c.kelas;
+                  return (
+                    <tr
+                      key={c.kelas}
+                      className="border-b border-surface-variant hover:bg-surface-container-lowest transition-colors"
+                    >
+                      <td className="py-3 px-3 md:px-4">
+                        <div className="flex items-center gap-2">
+                          <span className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface font-medium">
+                            {c.kelas}
+                          </span>
+                          {isBest && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 md:px-2 py-0.5 rounded-full bg-primary-fixed-dim text-on-primary-fixed text-[9px] md:text-[11px] font-bold uppercase tracking-wider">
+                              <Icon name="star" filled size={10} />
+                              Terbaik
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden sm:table-cell">
+                        {c.peserta}
+                      </td>
+                      <td className="py-3 px-3 md:px-4">
+                        <div className="flex items-center gap-2">
+                          <span className="font-title-sm text-title-sm font-bold text-primary">
+                            {c.rata}
+                          </span>
+                          <div className="w-16 h-1.5 rounded-full bg-surface-container-high overflow-hidden hidden sm:block">
+                            <div
+                              className="h-full rounded-full bg-primary transition-[width] duration-500"
+                              style={{ width: `${Math.min(c.rata, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden md:table-cell">
+                        {c.tertinggi}
+                      </td>
+                      <td className="py-3 px-3 md:px-4 font-body-sm text-body-sm text-on-surface-variant hidden md:table-cell">
+                        {c.terendah}
+                      </td>
+                      <td className="py-3 px-3 md:px-4">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 md:px-2.5 py-1 rounded-full font-label-caps text-label-caps text-xs ${
+                            pct >= PASS_RATE_OK
+                              ? "bg-secondary-container text-on-secondary-container"
+                              : "bg-surface-container-high text-on-surface"
+                          }`}
+                        >
+                          {pct}%
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 md:px-4 text-right whitespace-nowrap">
+                        <button
+                          aria-label={`Detail ${c.kelas}`}
+                          className="text-primary p-1.5 md:p-2 hover:bg-primary-fixed-dim rounded-full transition-colors"
+                        >
+                          <Icon name="visibility" size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

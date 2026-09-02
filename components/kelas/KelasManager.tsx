@@ -5,7 +5,7 @@ import Icon from "@/components/Icon";
 import StatCard from "@/components/StatCard";
 
 interface Kelas {
-  id: string;
+  id: number;
   nama: string;
   tingkat: "X" | "XI" | "XII";
   jurusan: string;
@@ -15,17 +15,6 @@ interface Kelas {
 
 const TINGKAT_OPTIONS = ["X", "XI", "XII"] as const;
 const JURUSAN_OPTIONS = ["RPL", "TKJ", "MM", "AK", "AP"];
-
-const INITIAL_DATA: Kelas[] = [
-  { id: "k1", nama: "X-A", tingkat: "X", jurusan: "RPL", waliKelas: "Bpk. Budi Santoso", jumlahSiswa: 32 },
-  { id: "k2", nama: "X-B", tingkat: "X", jurusan: "TKJ", waliKelas: "Ibu Sari Wulandari", jumlahSiswa: 30 },
-  { id: "k3", nama: "XI-A", tingkat: "XI", jurusan: "RPL", waliKelas: "Bpk. Hendra Gunawan", jumlahSiswa: 28 },
-  { id: "k4", nama: "XI-B", tingkat: "XI", jurusan: "TKJ", waliKelas: "Ibu Dewi Lestari", jumlahSiswa: 31 },
-  { id: "k5", nama: "XII-A", tingkat: "XII", jurusan: "MM", waliKelas: "Bpk. Ahmad Subarjo", jumlahSiswa: 29 },
-  { id: "k6", nama: "XII-B", tingkat: "XII", jurusan: "AK", waliKelas: "Ibu Ratna Sari", jumlahSiswa: 27 },
-];
-
-const STORAGE_KEY = "ujiankuuu_kelas";
 
 interface FormState {
   nama: string;
@@ -43,19 +32,9 @@ const EMPTY_FORM: FormState = {
   jumlahSiswa: "",
 };
 
-function loadKelas(): Kelas[] {
-  if (typeof window === "undefined") return INITIAL_DATA;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as Kelas[];
-  } catch {
-    // abaikan, pakai data awal
-  }
-  return INITIAL_DATA;
-}
-
 export default function KelasManager() {
-  const [kelas, setKelas] = useState<Kelas[]>(loadKelas);
+  const [kelas, setKelas] = useState<Kelas[]>([]);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [tingkatFilter, setTingkatFilter] = useState("Semua");
   const [formOpen, setFormOpen] = useState(false);
@@ -64,16 +43,43 @@ export default function KelasManager() {
   const [formError, setFormError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<Kelas | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [savingAction, setSavingAction] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Persist ke localStorage setiap data berubah.
+  // Muat data kelas dari backend (database).
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(kelas));
-    } catch {
-      // penyimpanan penuh / tidak tersedia
+    let cancelled = false;
+
+    async function fetchKelas() {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/kelas");
+        if (!res.ok) throw new Error("Gagal mengambil data kelas");
+        const data = await res.json();
+        if (!cancelled) {
+          const list: { id: number; name: string; level: string; major: string; homeroom_teacher: string; student_count: number }[] =
+            data.kelas ?? [];
+          setKelas(
+            list.map((k) => ({
+              id: k.id,
+              nama: k.name,
+              tingkat: k.level as Kelas["tingkat"],
+              jurusan: k.major,
+              waliKelas: k.homeroom_teacher,
+              jumlahSiswa: k.student_count,
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Fetch kelas error:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  }, [kelas]);
+
+    fetchKelas();
+    return () => { cancelled = true; };
+  }, []);
 
   // Bersihkan timer toast saat komponen dilepas.
   useEffect(() => {
@@ -86,6 +92,10 @@ export default function KelasManager() {
     setToast(message);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), 2500);
+  }
+
+  function getApiError(data: { message?: string }, fallback: string): string {
+    return data?.message || fallback;
   }
 
   const filtered = useMemo(() => {
@@ -137,8 +147,8 @@ export default function KelasManager() {
   function validate(): string | null {
     const nama = form.nama.trim().toUpperCase();
     if (!nama) return "Nama kelas wajib diisi.";
-    if (!/^[XIVLC]+[ -][A-Z]$/i.test(nama) && !/^[0-9]+[ -][A-Z]$/i.test(nama))
-      return "Gunakan format nama kelas, contoh: X-A atau XII-A.";
+    if (!/^[XIVLC]+[ -][A-Z0-9]+$/i.test(nama) && !/^[0-9]+[ -][A-Z0-9]+$/i.test(nama))
+      return "Gunakan format nama kelas, contoh: X-A, XI-1, atau XII-A.";
     if (!form.waliKelas.trim()) return "Nama wali kelas wajib diisi.";
     const jumlah = Number(form.jumlahSiswa);
     if (!form.jumlahSiswa || Number.isNaN(jumlah) || !Number.isInteger(jumlah) || jumlah <= 0)
@@ -157,29 +167,85 @@ export default function KelasManager() {
       setFormError(err);
       return;
     }
-    const data: Kelas = {
-      id: editing?.id ?? `k${Date.now()}`,
-      nama: form.nama.trim().toUpperCase(),
-      tingkat: form.tingkat,
-      jurusan: form.jurusan,
-      waliKelas: form.waliKelas.trim(),
-      jumlahSiswa: Number(form.jumlahSiswa),
+    const data = {
+      name: form.nama.trim().toUpperCase(),
+      level: form.tingkat,
+      major: form.jurusan,
+      homeroom_teacher: form.waliKelas.trim(),
+      student_count: Number(form.jumlahSiswa),
     };
+    setSavingAction(true);
+
     if (editing) {
-      setKelas((prev) => prev.map((k) => (k.id === editing.id ? data : k)));
-      showToast(`Kelas ${data.nama} berhasil diperbarui.`);
+      fetch(`/api/kelas/${editing.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+        .then(async (res) => {
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(getApiError(json, "Gagal memperbarui kelas."));
+          setKelas((prev) =>
+            prev.map((k) =>
+              k.id === editing.id
+                ? {
+                    ...k,
+                    nama: data.name,
+                    tingkat: data.level,
+                    jurusan: data.major,
+                    waliKelas: data.homeroom_teacher,
+                    jumlahSiswa: data.student_count,
+                  }
+                : k
+            )
+          );
+          showToast(`Kelas ${data.name} berhasil diperbarui.`);
+          setFormOpen(false);
+        })
+        .catch((e) => setFormError(e.message))
+        .finally(() => setSavingAction(false));
     } else {
-      setKelas((prev) => [...prev, data]);
-      showToast(`Kelas ${data.nama} berhasil ditambahkan.`);
+      fetch("/api/kelas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+        .then(async (res) => {
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(getApiError(json, "Gagal menambahkan kelas."));
+          setKelas((prev) => [
+            ...prev,
+            {
+              id: json.id,
+              nama: data.name,
+              tingkat: data.level,
+              jurusan: data.major,
+              waliKelas: data.homeroom_teacher,
+              jumlahSiswa: data.student_count,
+            },
+          ]);
+          showToast(`Kelas ${data.name} berhasil ditambahkan.`);
+          setFormOpen(false);
+        })
+        .catch((e) => setFormError(e.message))
+        .finally(() => setSavingAction(false));
     }
-    setFormOpen(false);
   }
 
   function handleDelete() {
     if (!deleting) return;
-    setKelas((prev) => prev.filter((k) => k.id !== deleting.id));
-    showToast(`Kelas ${deleting.nama} berhasil dihapus.`);
-    setDeleting(null);
+    const target = deleting;
+    setSavingAction(true);
+    fetch(`/api/kelas/${target.id}`, { method: "DELETE" })
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(getApiError(json, "Gagal menghapus kelas."));
+        setKelas((prev) => prev.filter((k) => k.id !== target.id));
+        showToast(`Kelas ${target.nama} berhasil dihapus.`);
+        setDeleting(null);
+      })
+      .catch((e) => showToast(e.message))
+      .finally(() => setSavingAction(false));
   }
 
   const inputClass =
@@ -200,36 +266,44 @@ export default function KelasManager() {
       </div>
 
       {/* ===== Statistik ===== */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
-        <StatCard
-          label="Total Kelas"
-          value={String(stats.totalKelas)}
-          icon="school"
-          iconClass="bg-primary-container text-on-primary-container"
-          sub="kelas aktif"
-        />
-        <StatCard
-          label="Total Siswa"
-          value={String(stats.totalSiswa)}
-          icon="group"
-          iconClass="bg-secondary-container text-on-secondary-container"
-          sub="seluruh jenjang"
-        />
-        <StatCard
-          label="Jurusan"
-          value={String(stats.jurusanCount)}
-          icon="account_tree"
-          iconClass="bg-tertiary-container text-on-tertiary-container"
-          sub="kompetensi keahlian"
-        />
-        <StatCard
-          label="Rata-rata/Kelas"
-          value={stats.rata}
-          icon="insights"
-          iconClass="bg-surface-tint text-on-primary"
-          sub="siswa per kelas"
-        />
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-24 bg-surface rounded-xl animate-pulse border border-outline-variant" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-gutter mb-4 md:mb-stack-lg">
+          <StatCard
+            label="Total Kelas"
+            value={String(stats.totalKelas)}
+            icon="school"
+            iconClass="bg-primary-container text-on-primary-container"
+            sub="kelas aktif"
+          />
+          <StatCard
+            label="Total Siswa"
+            value={String(stats.totalSiswa)}
+            icon="group"
+            iconClass="bg-secondary-container text-on-secondary-container"
+            sub="seluruh jenjang"
+          />
+          <StatCard
+            label="Jurusan"
+            value={String(stats.jurusanCount)}
+            icon="account_tree"
+            iconClass="bg-tertiary-container text-on-tertiary-container"
+            sub="kompetensi keahlian"
+          />
+          <StatCard
+            label="Rata-rata/Kelas"
+            value={stats.rata}
+            icon="insights"
+            iconClass="bg-surface-tint text-on-primary"
+            sub="siswa per kelas"
+          />
+        </div>
+      )}
 
       {/* ===== Toolbar ===== */}
       <div className="bg-surface rounded-xl shadow-sm border border-outline-variant p-3 md:p-stack-md mb-4 md:mb-stack-lg">
@@ -374,7 +448,9 @@ export default function KelasManager() {
                   <td colSpan={6} className="py-8 md:py-12 text-center">
                     <Icon name="search_off" size={28} className="text-outline mx-auto mb-2" />
                     <p className="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant">
-                      Tidak ada kelas yang cocok dengan pencarian.
+                      {kelas.length === 0
+                        ? "Belum ada data kelas. Klik 'Tambah Kelas' untuk menambahkan."
+                        : "Tidak ada kelas yang cocok dengan pencarian."}
                     </p>
                   </td>
                 </tr>
@@ -419,7 +495,7 @@ export default function KelasManager() {
                   id="kelas-nama"
                   value={form.nama}
                   onChange={(e) => setForm({ ...form, nama: e.target.value })}
-                  placeholder="contoh: X-A"
+                  placeholder="contoh: X-A, XI-1, XII-2"
                   className={inputClass}
                 />
               </div>
@@ -516,15 +592,21 @@ export default function KelasManager() {
                 <button
                   type="button"
                   onClick={() => setFormOpen(false)}
-                  className="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low font-label-caps text-label-caps transition-colors cursor-pointer"
+                  disabled={savingAction}
+                  className="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low font-label-caps text-label-caps transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-lg bg-primary text-on-primary font-label-caps text-label-caps hover:bg-on-primary-fixed-variant transition-colors cursor-pointer"
+                  disabled={savingAction}
+                  className="px-5 py-2.5 rounded-lg bg-primary text-on-primary font-label-caps text-label-caps hover:bg-on-primary-fixed-variant transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {editing ? "Simpan Perubahan" : "Tambah Kelas"}
+                  {savingAction
+                    ? "Menyimpan..."
+                    : editing
+                    ? "Simpan Perubahan"
+                    : "Tambah Kelas"}
                 </button>
               </div>
             </form>
@@ -557,15 +639,17 @@ export default function KelasManager() {
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleting(null)}
-                className="flex-1 px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low font-label-caps text-label-caps transition-colors cursor-pointer"
+                disabled={savingAction}
+                className="flex-1 px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low font-label-caps text-label-caps transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Batal
               </button>
               <button
                 onClick={handleDelete}
-                className="flex-1 px-5 py-2.5 rounded-lg bg-error text-on-error font-label-caps text-label-caps hover:bg-on-error-container transition-colors cursor-pointer"
+                disabled={savingAction}
+                className="flex-1 px-5 py-2.5 rounded-lg bg-error text-on-error font-label-caps text-label-caps hover:bg-on-error-container transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Ya, Hapus
+                {savingAction ? "Menghapus..." : "Ya, Hapus"}
               </button>
             </div>
           </div>

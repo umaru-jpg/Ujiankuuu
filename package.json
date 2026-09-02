@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "db:migrate": "node migrations/001_initial_schema.js",
-    "db:migrate:jadwal": "node migrations/002_jadwal_ujian_schema.js"
+    "db:migrate:jadwal": "node migrations/002_jadwal_ujian_schema.js",
+    "db:migrate:hasil": "node migrations/003_hasil_ujian_schema.js",
+    "db:migrate:kelas": "node migrations/004_kelas_seed.js"
   },
   "dependencies": {
     "chart.js": "^4.4.4",
