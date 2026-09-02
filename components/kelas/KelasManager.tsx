@@ -147,8 +147,8 @@ export default function KelasManager() {
   function validate(): string | null {
     const nama = form.nama.trim().toUpperCase();
     if (!nama) return "Nama kelas wajib diisi.";
-    if (!/^[XIVLC]+[ -][A-Z]$/i.test(nama) && !/^[0-9]+[ -][A-Z]$/i.test(nama))
-      return "Gunakan format nama kelas, contoh: X-A atau XII-A.";
+    if (!/^[XIVLC]+[ -][A-Z0-9]+$/i.test(nama) && !/^[0-9]+[ -][A-Z0-9]+$/i.test(nama))
+      return "Gunakan format nama kelas, contoh: X-A, XI-1, atau XII-A.";
     if (!form.waliKelas.trim()) return "Nama wali kelas wajib diisi.";
     const jumlah = Number(form.jumlahSiswa);
     if (!form.jumlahSiswa || Number.isNaN(jumlah) || !Number.isInteger(jumlah) || jumlah <= 0)
@@ -495,7 +495,7 @@ export default function KelasManager() {
                   id="kelas-nama"
                   value={form.nama}
                   onChange={(e) => setForm({ ...form, nama: e.target.value })}
-                  placeholder="contoh: X-A"
+                  placeholder="contoh: X-A, XI-1, XII-2"
                   className={inputClass}
                 />
               </div>
