@@ -1,5 +1,6 @@
 import { getMysqlPool } from "@/server/db/mysql";
 import type { RowDataPacket, ResultSetHeader } from "mysql2";
+import type { PoolConnection } from "mysql2/promise";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
@@ -23,6 +24,8 @@ export interface ExamScheduleRow extends RowDataPacket {
   created_at: string;
   updated_at: string;
   creator_name?: string; // from JOIN
+  question_count?: number;
+  question_ids?: number[];
 }
 
 export interface CreateExamScheduleDTO {
@@ -38,6 +41,7 @@ export interface CreateExamScheduleDTO {
   status?: ExamStatus;
   notes?: string;
   created_by: number;
+  question_ids: number[];
 }
 
 export interface UpdateExamScheduleDTO {
@@ -52,6 +56,7 @@ export interface UpdateExamScheduleDTO {
   supervisors?: string[];
   status?: ExamStatus;
   notes?: string;
+  question_ids?: number[];
 }
 
 export interface ExamScheduleListParams {
@@ -116,9 +121,14 @@ export async function findAllExamSchedules(
 
   // Fetch data with creator name
   const [rows] = await pool.execute<ExamScheduleRow[]>(
-    `SELECT
+     `SELECT
        es.*,
-       u.name as creator_name
+       u.name as creator_name,
+       (
+         SELECT COUNT(*)
+         FROM exam_schedule_questions esq
+         WHERE esq.exam_schedule_id = es.id
+       ) as question_count
      FROM exam_schedules es
      LEFT JOIN users u ON u.id = es.created_by
      ${where}
@@ -146,7 +156,12 @@ export async function findExamScheduleById(
   const [rows] = await pool.execute<ExamScheduleRow[]>(
     `SELECT
        es.*,
-       u.name as creator_name
+       u.name as creator_name,
+       (
+         SELECT COUNT(*)
+         FROM exam_schedule_questions esq
+         WHERE esq.exam_schedule_id = es.id
+       ) as question_count
      FROM exam_schedules es
      LEFT JOIN users u ON u.id = es.created_by
      WHERE es.id = ?
@@ -154,7 +169,11 @@ export async function findExamScheduleById(
     [id]
   );
 
-  return rows[0] ?? null;
+  const schedule = rows[0] ?? null;
+  if (!schedule) return null;
+
+  schedule.question_ids = await findQuestionIdsByScheduleId(id);
+  return schedule;
 }
 
 /**
@@ -164,28 +183,41 @@ export async function createExamSchedule(
   dto: CreateExamScheduleDTO
 ): Promise<number> {
   const pool = getMysqlPool();
-  const [result] = await pool.execute<ResultSetHeader>(
-    `INSERT INTO exam_schedules
-       (title, subject, exam_type, exam_date, start_time, end_time,
-        room, class_names, supervisors, status, notes, created_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      dto.title,
-      dto.subject,
-      dto.exam_type,
-      dto.exam_date,
-      dto.start_time,
-      dto.end_time,
-      dto.room,
-      JSON.stringify(dto.class_names),
-      JSON.stringify(dto.supervisors),
-      dto.status ?? "scheduled",
-      dto.notes ?? null,
-      dto.created_by,
-    ]
-  );
+  const conn = await pool.getConnection();
 
-  return result.insertId;
+  try {
+    await conn.beginTransaction();
+
+    const [result] = await conn.execute<ResultSetHeader>(
+      `INSERT INTO exam_schedules
+         (title, subject, exam_type, exam_date, start_time, end_time,
+          room, class_names, supervisors, status, notes, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        dto.title,
+        dto.subject,
+        dto.exam_type,
+        dto.exam_date,
+        dto.start_time,
+        dto.end_time,
+        dto.room,
+        JSON.stringify(dto.class_names),
+        JSON.stringify(dto.supervisors),
+        dto.status ?? "scheduled",
+        dto.notes ?? null,
+        dto.created_by,
+      ]
+    );
+
+    await replaceScheduleQuestions(result.insertId, dto.question_ids, conn);
+    await conn.commit();
+    return result.insertId;
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
 }
 
 /**
@@ -196,6 +228,7 @@ export async function updateExamSchedule(
   dto: UpdateExamScheduleDTO
 ): Promise<boolean> {
   const pool = getMysqlPool();
+  const conn = await pool.getConnection();
   const fields: string[] = [];
   const values: (string | number | null)[] = [];
 
@@ -244,15 +277,37 @@ export async function updateExamSchedule(
     values.push(dto.notes);
   }
 
-  if (fields.length === 0) return false;
+  if (fields.length === 0 && dto.question_ids === undefined) {
+    conn.release();
+    return false;
+  }
 
-  values.push(id);
-  const [result] = await pool.execute<ResultSetHeader>(
-    `UPDATE exam_schedules SET ${fields.join(", ")} WHERE id = ?`,
-    values
-  );
+  try {
+    await conn.beginTransaction();
 
-  return result.affectedRows > 0;
+    let affected = 0;
+    if (fields.length > 0) {
+      values.push(id);
+      const [result] = await conn.execute<ResultSetHeader>(
+        `UPDATE exam_schedules SET ${fields.join(", ")} WHERE id = ?`,
+        values
+      );
+      affected = result.affectedRows;
+    }
+
+    if (dto.question_ids !== undefined) {
+      await replaceScheduleQuestions(id, dto.question_ids, conn);
+      affected = 1;
+    }
+
+    await conn.commit();
+    return affected > 0;
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    conn.release();
+  }
 }
 
 /**
@@ -278,4 +333,41 @@ export async function findDistinctSubjects(): Promise<string[]> {
   );
 
   return rows.map((r) => r.subject as string);
+}
+
+async function findQuestionIdsByScheduleId(id: number): Promise<number[]> {
+  const pool = getMysqlPool();
+  const [rows] = await pool.execute<RowDataPacket[]>(
+    `SELECT question_id
+     FROM exam_schedule_questions
+     WHERE exam_schedule_id = ?
+     ORDER BY sort_order ASC, question_id ASC`,
+    [id]
+  );
+
+  return rows.map((r) => Number(r.question_id));
+}
+
+async function replaceScheduleQuestions(
+  scheduleId: number,
+  questionIds: number[],
+  executor: PoolConnection
+) {
+  await executor.execute(
+    "DELETE FROM exam_schedule_questions WHERE exam_schedule_id = ?",
+    [scheduleId]
+  );
+
+  const uniqueIds = Array.from(new Set(questionIds.map(Number))).filter(
+    (id) => Number.isInteger(id) && id > 0
+  );
+
+  for (let i = 0; i < uniqueIds.length; i++) {
+    await executor.execute(
+      `INSERT INTO exam_schedule_questions
+         (exam_schedule_id, question_id, sort_order)
+       VALUES (?, ?, ?)`,
+      [scheduleId, uniqueIds[i], i]
+    );
+  }
 }

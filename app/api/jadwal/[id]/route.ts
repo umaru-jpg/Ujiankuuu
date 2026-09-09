@@ -4,6 +4,7 @@ import {
   updateExamSchedule,
   deleteExamSchedule,
 } from "@/server/repositories/jadwalRepository";
+import { findQuestionById } from "@/server/repositories/questionRepository";
 import type { ExamType, ExamStatus } from "@/server/repositories/jadwalRepository";
 
 // ── GET /api/jadwal/:id ────────────────────────────────────────────────
@@ -43,7 +44,7 @@ export async function GET(
 // ── PUT /api/jadwal/:id ────────────────────────────────────────────────
 // Update an existing exam schedule.
 // Body: any subset of { title, subject, exam_type, exam_date, start_time,
-//        end_time, room, class_names, supervisors, status, notes }
+//        end_time, room, class_names, supervisors, status, notes, question_ids }
 
 export async function PUT(
   request: Request,
@@ -108,6 +109,34 @@ export async function PUT(
         );
       }
     }
+    let questionIds: number[] | undefined;
+    if (body.question_ids !== undefined) {
+      if (!Array.isArray(body.question_ids) || body.question_ids.length === 0) {
+        return NextResponse.json(
+          { message: "Pilih minimal 1 soal dari Bank Soal." },
+          { status: 400 }
+        );
+      }
+      const rawQuestionIds = (body.question_ids as unknown[]).map(Number);
+      questionIds = Array.from(new Set(rawQuestionIds)).filter(
+        (questionId): questionId is number => Number.isInteger(questionId) && questionId > 0
+      );
+      if (questionIds.length === 0) {
+        return NextResponse.json(
+          { message: "Daftar soal tidak valid." },
+          { status: 400 }
+        );
+      }
+      for (const questionId of questionIds) {
+        const question = await findQuestionById(questionId);
+        if (!question || question.status !== "published") {
+          return NextResponse.json(
+            { message: "Semua soal jadwal harus berasal dari Bank Soal berstatus Published." },
+            { status: 400 }
+          );
+        }
+      }
+    }
 
     // Validate date format if provided
     if (body.exam_date !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(body.exam_date)) {
@@ -153,8 +182,11 @@ export async function PUT(
 
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
-        updateDto[field] = body[field];
+      updateDto[field] = body[field];
       }
+    }
+    if (questionIds !== undefined) {
+      updateDto.question_ids = questionIds;
     }
 
     // Normalize time format

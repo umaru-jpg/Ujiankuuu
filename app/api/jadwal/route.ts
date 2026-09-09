@@ -4,6 +4,7 @@ import {
   createExamSchedule,
   findDistinctSubjects,
 } from "@/server/repositories/jadwalRepository";
+import { findQuestionById } from "@/server/repositories/questionRepository";
 import type { ExamType, ExamStatus } from "@/server/repositories/jadwalRepository";
 
 // ── GET /api/jadwal ────────────────────────────────────────────────────
@@ -51,7 +52,7 @@ export async function GET(request: Request) {
 // ── POST /api/jadwal ───────────────────────────────────────────────────
 // Create a new exam schedule.
 // Body: { title, subject, exam_type, exam_date, start_time, end_time,
-//         room, class_names, supervisors, status?, notes?, created_by }
+//         room, class_names, supervisors, status?, notes?, created_by, question_ids }
 
 export async function POST(request: Request) {
   try {
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
       "class_names",
       "supervisors",
       "created_by",
+      "question_ids",
     ] as const;
 
     for (const field of required) {
@@ -101,6 +103,33 @@ export async function POST(request: Request) {
         { message: "supervisors harus berupa array tidak kosong." },
         { status: 400 }
       );
+    }
+    if (!Array.isArray(body.question_ids) || body.question_ids.length === 0) {
+      return NextResponse.json(
+        { message: "Pilih minimal 1 soal dari Bank Soal." },
+        { status: 400 }
+      );
+    }
+
+    const rawQuestionIds = (body.question_ids as unknown[]).map(Number);
+    const questionIds = Array.from(new Set(rawQuestionIds)).filter(
+      (id): id is number => Number.isInteger(id) && id > 0
+    );
+    if (questionIds.length === 0) {
+      return NextResponse.json(
+        { message: "Daftar soal tidak valid." },
+        { status: 400 }
+      );
+    }
+
+    for (const questionId of questionIds) {
+      const question = await findQuestionById(questionId);
+      if (!question || question.status !== "published") {
+        return NextResponse.json(
+          { message: "Semua soal jadwal harus berasal dari Bank Soal berstatus Published." },
+          { status: 400 }
+        );
+      }
     }
 
     // Validate date format
@@ -148,6 +177,7 @@ export async function POST(request: Request) {
       status: body.status,
       notes: body.notes,
       created_by: body.created_by,
+      question_ids: questionIds,
     });
 
     return NextResponse.json(

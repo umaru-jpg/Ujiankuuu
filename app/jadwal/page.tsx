@@ -32,6 +32,44 @@ interface JadwalItem {
   created_at: string;
   updated_at: string;
   creator_name?: string;
+  question_count?: number;
+  question_ids?: number[];
+}
+
+interface ApiQuestion {
+  id: number;
+  subject: string;
+  level: "X" | "XI" | "XII";
+  status: "published" | "draft";
+  question_type: "multiple_choice" | "essay";
+  prompt: string;
+  author_name: string;
+}
+
+interface QuestionPackage {
+  key: string;
+  subject: string;
+  level: ApiQuestion["level"];
+  questions: ApiQuestion[];
+  multipleChoice: number;
+  essay: number;
+}
+
+interface KelasOption {
+  id: number;
+  name: string;
+  level: ApiQuestion["level"];
+  major: string;
+  homeroom_teacher: string;
+  student_count: number;
+}
+
+interface KelasGroupOption {
+  key: string;
+  label: string;
+  level: ApiQuestion["level"];
+  major: string;
+  studentCount: number;
 }
 
 interface FormState {
@@ -79,6 +117,12 @@ const STATUS_BADGE: Record<ExamStatus, string> = {
   cancelled: "bg-error-container text-on-error-container",
 };
 
+const LEVEL_LABEL: Record<ApiQuestion["level"], string> = {
+  X: "Kelas 10",
+  XI: "Kelas 11",
+  XII: "Kelas 12",
+};
+
 // ── Helpers ────────────────────────────────────────────────────────────
 
 function formatDate(dateStr: string): { dayName: string; day: string; month: string } {
@@ -107,6 +151,22 @@ function parseJsonArray(json: string): string[] {
   }
 }
 
+function inferLevelsFromClasses(value: string): ApiQuestion["level"][] {
+  const levels = new Set<ApiQuestion["level"]>();
+  for (const item of value.split(",").map((part) => part.trim().toLowerCase())) {
+    if (!item) continue;
+    if (item.startsWith("xii") || item.includes("kelas 12")) levels.add("XII");
+    else if (item.startsWith("xi") || item.includes("kelas 11")) levels.add("XI");
+    else if (item.startsWith("x") || item.includes("kelas 10")) levels.add("X");
+  }
+  return Array.from(levels);
+}
+
+function formatKelasGroup(level: ApiQuestion["level"], major: string): string {
+  const cleanMajor = major.trim();
+  return cleanMajor ? `${level} ${cleanMajor}` : level;
+}
+
 // ── DateBox Component ──────────────────────────────────────────────────
 
 function DateBox({ dateStr, compact = false }: { dateStr: string; compact?: boolean }) {
@@ -132,12 +192,20 @@ function DateBox({ dateStr, compact = false }: { dateStr: string; compact?: bool
 
 export default function JadwalPage() {
   const router = useRouter();
-  const user = useDashboardUser();
+  const dashboardUser = useDashboardUser();
+  const [sessionUser, setSessionUser] = useState<ReturnType<typeof getSession>>(null);
+  const user = dashboardUser ?? sessionUser;
   const isSiswa = user?.role === "siswa";
   const canEdit = user?.role === "admin" || user?.role === "guru";
 
   const [view, setView] = useState<ViewMode>("daftar");
   const [schedules, setSchedules] = useState<JadwalItem[]>([]);
+  const [questions, setQuestions] = useState<ApiQuestion[]>([]);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
+  const [selectedPackageKey, setSelectedPackageKey] = useState("");
+  const [kelasList, setKelasList] = useState<KelasOption[]>([]);
+  const [kelasLoading, setKelasLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -171,8 +239,47 @@ export default function JadwalPage() {
   }, []);
 
   useEffect(() => {
+    setSessionUser(getSession());
     fetchSchedules();
   }, [fetchSchedules]);
+
+  const fetchQuestions = useCallback(async () => {
+    try {
+      setQuestionsLoading(true);
+      const res = await fetch("/api/questions?limit=1000&status=published");
+      if (!res.ok) throw new Error("Gagal memuat bank soal");
+      const data = await res.json();
+      setQuestions(data.data ?? []);
+    } catch (err) {
+      console.error("Fetch questions error:", err);
+      setToast("Gagal memuat Bank Soal.");
+    } finally {
+      setQuestionsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (canEdit) fetchQuestions();
+  }, [canEdit, fetchQuestions]);
+
+  const fetchKelas = useCallback(async () => {
+    try {
+      setKelasLoading(true);
+      const res = await fetch("/api/kelas");
+      if (!res.ok) throw new Error("Gagal memuat kelas");
+      const data = await res.json();
+      setKelasList(data.kelas ?? []);
+    } catch (err) {
+      console.error("Fetch kelas error:", err);
+      setToast("Gagal memuat data kelas.");
+    } finally {
+      setKelasLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (canEdit) fetchKelas();
+  }, [canEdit, fetchKelas]);
 
   // Toast timer cleanup
   useEffect(() => {
@@ -202,17 +309,90 @@ export default function JadwalPage() {
     });
   }, [schedules, searchQuery, statusFilter]);
 
+  const questionPackages = useMemo(() => {
+    const groups = new Map<string, QuestionPackage>();
+    for (const question of questions) {
+      const key = `${question.subject}|||${question.level}`;
+      const existing = groups.get(key);
+      if (!existing) {
+        groups.set(key, {
+          key,
+          subject: question.subject,
+          level: question.level,
+          questions: [question],
+          multipleChoice: question.question_type === "multiple_choice" ? 1 : 0,
+          essay: question.question_type === "essay" ? 1 : 0,
+        });
+        continue;
+      }
+      existing.questions.push(question);
+      existing.multipleChoice += question.question_type === "multiple_choice" ? 1 : 0;
+      existing.essay += question.question_type === "essay" ? 1 : 0;
+    }
+    return Array.from(groups.values()).sort(
+      (a, b) => a.subject.localeCompare(b.subject) || a.level.localeCompare(b.level)
+    );
+  }, [questions]);
+
+  const kelasGroups = useMemo(() => {
+    const groups = new Map<string, KelasGroupOption>();
+    for (const kelas of kelasList) {
+      const major = kelas.major.trim();
+      const key = `${kelas.level}|||${major.toLowerCase()}`;
+      const existing = groups.get(key);
+      if (existing) {
+        existing.studentCount += kelas.student_count;
+        continue;
+      }
+      groups.set(key, {
+        key,
+        label: formatKelasGroup(kelas.level, major),
+        level: kelas.level,
+        major,
+        studentCount: kelas.student_count,
+      });
+    }
+    return Array.from(groups.values()).sort(
+      (a, b) => a.level.localeCompare(b.level) || a.major.localeCompare(b.major)
+    );
+  }, [kelasList]);
+
+  const filteredQuestionPackages = useMemo(() => {
+    const levels = inferLevelsFromClasses(form.class_names);
+    return questionPackages.filter((pkg) => {
+      const selected = pkg.key === selectedPackageKey;
+      const matchLevel = levels.length === 0 || levels.includes(pkg.level);
+      return selected || matchLevel;
+    });
+  }, [form.class_names, questionPackages, selectedPackageKey]);
+
+  const selectedPackage = questionPackages.find((pkg) => pkg.key === selectedPackageKey);
+
   // ── Form handlers ──────────────────────────────────────────────────
 
   function openAdd() {
     setEditing(null);
     setForm(EMPTY_FORM);
+    setSelectedQuestionIds([]);
+    setSelectedPackageKey("");
     setFormError(null);
     setFormOpen(true);
   }
 
-  function openEdit(item: JadwalItem) {
+  async function openEdit(item: JadwalItem) {
     setEditing(item);
+    let questionIds = item.question_ids ?? [];
+    if (questionIds.length === 0) {
+      try {
+        const res = await fetch(`/api/jadwal/${item.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          questionIds = data.question_ids ?? [];
+        }
+      } catch (err) {
+        console.error("Fetch schedule detail error:", err);
+      }
+    }
     const classNames = parseJsonArray(item.class_names).join(", ");
     const supervisors = parseJsonArray(item.supervisors).join(", ");
     setForm({
@@ -228,6 +408,13 @@ export default function JadwalPage() {
       status: item.status,
       notes: item.notes ?? "",
     });
+    setSelectedQuestionIds(questionIds);
+    const matchedPackage = questionPackages.find((pkg) => {
+      const ids = pkg.questions.map((question) => question.id).sort((a, b) => a - b);
+      const selectedIds = [...questionIds].sort((a, b) => a - b);
+      return ids.length === selectedIds.length && ids.every((id, idx) => id === selectedIds[idx]);
+    });
+    setSelectedPackageKey(matchedPackage?.key ?? "");
     setFormError(null);
     setFormOpen(true);
   }
@@ -241,8 +428,30 @@ export default function JadwalPage() {
     if (!form.room.trim()) return "Ruangan wajib diisi.";
     if (!form.class_names.trim()) return "Kelas wajib diisi.";
     if (!form.supervisors.trim()) return "Pengawas wajib diisi.";
+    if (selectedQuestionIds.length === 0) return "Pilih minimal 1 soal dari Bank Soal.";
     if (form.end_time <= form.start_time) return "Jam selesai harus lebih besar dari jam mulai.";
     return null;
+  }
+
+  function selectPackage(pkg: QuestionPackage) {
+    setSelectedPackageKey(pkg.key);
+    setSelectedQuestionIds(pkg.questions.map((question) => question.id));
+    setForm((prev) => ({
+      ...prev,
+      subject: pkg.subject,
+    }));
+  }
+
+  function selectedClasses(): string[] {
+    return form.class_names.split(",").map((c) => c.trim()).filter(Boolean);
+  }
+
+  function toggleKelas(label: string) {
+    const current = selectedClasses();
+    const next = current.includes(label)
+      ? current.filter((item) => item !== label)
+      : [...current, label];
+    setForm((prev) => ({ ...prev, class_names: next.join(", ") }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -272,6 +481,7 @@ export default function JadwalPage() {
       status: form.status,
       notes: form.notes.trim() || null,
       created_by: session.id,
+      question_ids: selectedQuestionIds,
     };
 
     try {
@@ -478,6 +688,10 @@ export default function JadwalPage() {
                           <Icon name="meeting_room" size={16} />
                           {s.room}
                         </span>
+                        <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+                          <Icon name="quiz" size={16} />
+                          {s.question_count ?? 0} soal
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="font-label-caps text-label-caps text-on-surface-variant">PENGAWAS:</span>
@@ -485,7 +699,7 @@ export default function JadwalPage() {
                       </div>
                     </div>
                     <button
-                      onClick={() => router.push("/ujian")}
+                      onClick={() => router.push(`/ujian?scheduleId=${s.id}`)}
                       className="inline-flex items-center justify-center gap-2 bg-primary text-on-primary font-title-sm text-title-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-primary/90 active:scale-95 transition-all shadow-sm min-h-[44px] cursor-pointer"
                     >
                       Mulai Ujian
@@ -531,6 +745,10 @@ export default function JadwalPage() {
                           <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
                             <Icon name="meeting_room" size={16} />
                             {s.room}
+                          </span>
+                          <span className="flex items-center gap-1 font-body-sm text-body-sm text-on-surface-variant">
+                            <Icon name="quiz" size={16} />
+                            {s.question_count ?? 0} soal
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -613,7 +831,7 @@ export default function JadwalPage() {
           <form
             onSubmit={handleSubmit}
             onClick={(e) => e.stopPropagation()}
-            className="relative bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            className="relative bg-surface-container-lowest rounded-xl shadow-xl border border-outline-variant w-full max-w-3xl max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between p-4 md:p-6 pb-3 md:pb-4 border-b border-outline-variant">
               <div>
@@ -710,13 +928,50 @@ export default function JadwalPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Kelas (pisahkan koma)</label>
-                <input
-                  value={form.class_names}
-                  onChange={(e) => setForm({ ...form, class_names: e.target.value })}
-                  placeholder="contoh: XII RPL 1, XII RPL 2"
-                  className={inputClass}
-                />
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <label className={labelClass}>Kelas</label>
+                  <span className="font-body-sm text-body-sm text-on-surface-variant">
+                    {selectedClasses().length} dipilih
+                  </span>
+                </div>
+                <div className="rounded-lg border border-outline-variant bg-surface-container-lowest overflow-hidden">
+                  <div className="max-h-44 overflow-y-auto divide-y divide-outline-variant/50">
+                    {kelasLoading && (
+                      <div className="p-4 font-body-sm text-body-sm text-on-surface-variant">
+                        Memuat kelas...
+                      </div>
+                    )}
+                    {!kelasLoading && kelasGroups.length === 0 && (
+                      <div className="p-4 font-body-sm text-body-sm text-on-surface-variant">
+                        Belum ada data kelas. Tambahkan kelas terlebih dahulu di menu Kelas.
+                      </div>
+                    )}
+                    {!kelasLoading && kelasGroups.map((kelas) => {
+                      const selected = selectedClasses().includes(kelas.label);
+                      return (
+                        <label
+                          key={kelas.key}
+                          className="flex items-center gap-3 p-3 hover:bg-surface-container-low cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            onChange={() => toggleKelas(kelas.label)}
+                            className="h-4 w-4 rounded border-outline text-primary focus:ring-primary"
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="block font-title-sm text-title-sm text-on-surface">
+                              {kelas.label}
+                            </span>
+                            <span className="block font-body-sm text-body-sm text-on-surface-variant">
+                              {kelas.studentCount} siswa
+                            </span>
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -740,6 +995,62 @@ export default function JadwalPage() {
                     <option key={s} value={s}>{STATUS_LABEL[s]}</option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <label className={labelClass}>Paket Soal dari Bank Soal</label>
+                  <span className="font-body-sm text-body-sm text-on-surface-variant">
+                    {selectedPackage ? `${selectedPackage.questions.length} soal` : `${selectedQuestionIds.length} soal`}
+                  </span>
+                </div>
+                <div className="rounded-lg border border-outline-variant bg-surface-container-lowest overflow-hidden">
+                  <div className="max-h-72 overflow-y-auto divide-y divide-outline-variant/50">
+                    {questionsLoading && (
+                      <div className="p-4 font-body-sm text-body-sm text-on-surface-variant">
+                        Memuat paket soal...
+                      </div>
+                    )}
+                    {!questionsLoading && filteredQuestionPackages.length === 0 && (
+                      <div className="p-4 font-body-sm text-body-sm text-on-surface-variant">
+                        Tidak ada paket soal published yang cocok dengan mata pelajaran dan kelas.
+                      </div>
+                    )}
+                    {!questionsLoading && filteredQuestionPackages.map((pkg) => {
+                      const selected = selectedPackageKey === pkg.key;
+                      return (
+                        <button
+                          type="button"
+                          key={pkg.key}
+                          onClick={() => selectPackage(pkg)}
+                          className="flex items-start gap-3 p-3 hover:bg-surface-container-low cursor-pointer"
+                        >
+                          <span
+                            className={`mt-1 h-4 w-4 rounded-full border-2 shrink-0 ${
+                              selected ? "border-primary bg-primary" : "border-outline"
+                            }`}
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-left font-title-sm text-title-sm text-on-surface">
+                              {pkg.subject} - {LEVEL_LABEL[pkg.level]}
+                            </span>
+                            <span className="mt-1 flex flex-wrap gap-2 text-left font-body-sm text-body-sm text-on-surface-variant">
+                              <span>{pkg.questions.length} soal published</span>
+                              <span>{pkg.multipleChoice} PG</span>
+                              <span>{pkg.essay} Essay</span>
+                              <span>{Array.from(new Set(pkg.questions.map((question) => question.author_name))).slice(0, 2).join(", ")}</span>
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                {!selectedPackage && selectedQuestionIds.length > 0 && (
+                  <p className="mt-2 font-body-sm text-body-sm text-on-surface-variant">
+                    Jadwal ini memakai pilihan soal lama. Pilih paket untuk mengganti semua soal dari grup Bank Soal.
+                  </p>
+                )}
               </div>
 
               <div>

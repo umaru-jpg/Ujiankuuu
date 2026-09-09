@@ -66,6 +66,7 @@ export interface GuruExamWithStudents {
 }
 
 export interface SiswaHasilResponse {
+  exam_schedule_id: number;
   score: number;
   correct_answers: number;
   wrong_answers: number;
@@ -368,6 +369,7 @@ export async function getSiswaLatestResult(
   }
 
   return {
+    exam_schedule_id: row.exam_schedule_id,
     score: row.score,
     correct_answers: row.correct_answers,
     wrong_answers: row.wrong_answers,
@@ -419,6 +421,7 @@ export async function getSiswaAllResults(
     }
 
     return {
+      exam_schedule_id: row.exam_schedule_id,
       score: row.score,
       correct_answers: row.correct_answers,
       wrong_answers: row.wrong_answers,

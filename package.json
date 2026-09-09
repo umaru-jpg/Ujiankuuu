@@ -10,7 +10,8 @@
     "db:migrate:jadwal": "node migrations/002_jadwal_ujian_schema.js",
     "db:migrate:hasil": "node migrations/003_hasil_ujian_schema.js",
     "db:migrate:questions": "node migrations/003_questions_level_options.js",
-    "db:migrate:kelas": "node migrations/004_kelas_seed.js"
+    "db:migrate:kelas": "node migrations/004_kelas_seed.js",
+    "db:migrate:jadwal-questions": "node migrations/005_jadwal_questions_schema.js"
   },
   "dependencies": {
     "chart.js": "^4.4.4",

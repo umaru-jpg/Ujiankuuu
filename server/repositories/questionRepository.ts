@@ -426,6 +426,27 @@ export async function updateQuestion(
   }
 }
 
+export async function updateQuestionsStatus(
+  ids: number[],
+  status: QuestionStatus
+): Promise<number> {
+  const uniqueIds = Array.from(new Set(ids.map(Number))).filter(
+    (id) => Number.isInteger(id) && id > 0
+  );
+  if (uniqueIds.length === 0) return 0;
+
+  const pool = getMysqlPool();
+  const placeholders = uniqueIds.map(() => "?").join(",");
+  const [result] = await pool.execute<ResultSetHeader>(
+    `UPDATE questions
+     SET status = ?
+     WHERE id IN (${placeholders})`,
+    [status, ...uniqueIds]
+  );
+
+  return result.affectedRows;
+}
+
 /**
  * Delete a question by ID (options cascade delete).
  */

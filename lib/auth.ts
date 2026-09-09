@@ -6,6 +6,7 @@ export interface User {
   username: string;
   role: Role;
   title: string;
+  department?: string;
   initial: string;
   color: string; // tailwind gradient stops for avatar
 }

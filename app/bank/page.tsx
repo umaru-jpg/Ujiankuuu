@@ -60,6 +60,8 @@ interface SoalGroup {
   total: number;
   pilihanGanda: number;
   essay: number;
+  published: number;
+  draft: number;
   authors: string[];
 }
 
@@ -116,6 +118,10 @@ function kelasFilterToLevel(k: string): ApiLevel | undefined {
     "Kelas 12": "XII",
   };
   return map[k];
+}
+
+function groupKeyOf(soal: Soal): string {
+  return `${soal.mapel}|||${soal.kelas}`;
 }
 
 // ── Bulk Create Form Types ─────────────────────────────────────────────
@@ -260,6 +266,7 @@ export default function BankSoalPage() {
   const [submitting, setSubmitting] = useState(false);
   const [deletingSoal, setDeletingSoal] = useState<Soal | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [bulkStatusLoading, setBulkStatusLoading] = useState<ApiStatus | null>(null);
   const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
 
   // Excel import
@@ -337,7 +344,7 @@ export default function BankSoalPage() {
     const groups = new Map<string, SoalGroup>();
 
     for (const soal of filtered) {
-      const key = `${soal.mapel}|||${soal.kelas}`;
+      const key = groupKeyOf(soal);
       const existing = groups.get(key);
 
       if (!existing) {
@@ -348,6 +355,8 @@ export default function BankSoalPage() {
           total: 1,
           pilihanGanda: soal.tipe === "Pilihan Ganda" ? 1 : 0,
           essay: soal.tipe === "Essay" ? 1 : 0,
+          published: soal.status === "Published" ? 1 : 0,
+          draft: soal.status === "Draft" ? 1 : 0,
           authors: [soal.penulis],
         });
         continue;
@@ -356,6 +365,8 @@ export default function BankSoalPage() {
       existing.total += 1;
       existing.pilihanGanda += soal.tipe === "Pilihan Ganda" ? 1 : 0;
       existing.essay += soal.tipe === "Essay" ? 1 : 0;
+      existing.published += soal.status === "Published" ? 1 : 0;
+      existing.draft += soal.status === "Draft" ? 1 : 0;
       if (!existing.authors.includes(soal.penulis)) existing.authors.push(soal.penulis);
     }
 
@@ -364,8 +375,14 @@ export default function BankSoalPage() {
     );
   }, [filtered]);
   const selectedGroup = groupedSoals.find((group) => group.key === selectedGroupKey);
+  const selectedGroupAllQuestions = selectedGroupKey
+    ? soals.filter((soal) => {
+        if (!isAdmin && soal.authorId !== user?.id) return false;
+        return groupKeyOf(soal) === selectedGroupKey;
+      })
+    : [];
   const groupQuestions = selectedGroupKey
-    ? filtered.filter((soal) => `${soal.mapel}|||${soal.kelas}` === selectedGroupKey)
+    ? filtered.filter((soal) => groupKeyOf(soal) === selectedGroupKey)
     : [];
   const questionTotalPages = Math.max(1, Math.ceil(groupQuestions.length / PAGE_SIZE));
   const questionSafePage = Math.min(page, questionTotalPages);
@@ -391,6 +408,30 @@ export default function BankSoalPage() {
   function closeGroup() {
     setSelectedGroupKey(null);
     setPage(1);
+  }
+
+  async function updateGroupStatus(status: ApiStatus) {
+    if (!selectedGroupKey || selectedGroupAllQuestions.length === 0) return;
+    try {
+      setBulkStatusLoading(status);
+      const res = await fetch("/api/questions/bulk-status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status,
+          question_ids: selectedGroupAllQuestions.map((soal) => soal.id),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Gagal mengubah status grup.");
+      showToast(data.message || "Status grup berhasil diubah.");
+      await fetchQuestions();
+    } catch (err) {
+      console.error(err);
+      alert(err instanceof Error ? err.message : "Gagal mengubah status grup.");
+    } finally {
+      setBulkStatusLoading(null);
+    }
   }
 
   // ── Bulk Create: Slot Management ────────────────────────────────
@@ -880,6 +921,12 @@ export default function BankSoalPage() {
                     </div>
 
                     <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-on-surface-variant">
+                      <span className="rounded-md bg-green-100 px-2 py-1 font-label-caps text-label-caps text-green-800">
+                        {group.published} Published
+                      </span>
+                      <span className="rounded-md bg-surface-container-high px-2 py-1 font-label-caps text-label-caps text-on-surface-variant">
+                        {group.draft} Draft
+                      </span>
                       <span className="truncate">
                         {group.authors.slice(0, 2).join(", ")}
                         {group.authors.length > 2 ? ` +${group.authors.length - 2}` : ""}
@@ -910,6 +957,24 @@ export default function BankSoalPage() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => updateGroupStatus("published")}
+                      disabled={bulkStatusLoading !== null || selectedGroupAllQuestions.length === 0}
+                      className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 font-label-caps text-label-caps text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <Icon name="publish" size={14} />
+                      {bulkStatusLoading === "published" ? "Memproses..." : "Publish Semua"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateGroupStatus("draft")}
+                      disabled={bulkStatusLoading !== null || selectedGroupAllQuestions.length === 0}
+                      className="inline-flex items-center gap-1 rounded-md border border-outline-variant bg-surface-container-low px-3 py-1.5 font-label-caps text-label-caps text-on-surface-variant transition-colors hover:bg-surface-container disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      <Icon name="draft" size={14} />
+                      {bulkStatusLoading === "draft" ? "Memproses..." : "Draft Semua"}
+                    </button>
                     <span className="inline-flex items-center gap-1 rounded-md bg-secondary-container px-2.5 py-1 font-label-caps text-label-caps text-on-secondary-fixed">
                       <Icon name="radio_button_checked" size={14} />
                       {selectedGroup.pilihanGanda} PG

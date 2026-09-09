@@ -22,6 +22,13 @@ interface KelasOption {
   major: string;
 }
 
+interface KelasGroupOption {
+  key: string;
+  label: string;
+  level: string;
+  major: string;
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────
 
 function apiRoleToDisplay(apiRole: ApiRole): UserRole {
@@ -49,6 +56,11 @@ function initialsOf(name: string): string {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+}
+
+function formatKelasGroup(level: string, major: string): string {
+  const cleanMajor = major.trim();
+  return cleanMajor ? `${level} ${cleanMajor}` : level;
 }
 
 // ── Constants ──────────────────────────────────────────────────────────
@@ -177,6 +189,25 @@ export default function ManagementUserPage() {
       return matchRole && matchSearch;
     });
   }, [users, roleFilter, search]);
+
+  const kelasGroups = useMemo(() => {
+    const groups = new Map<string, KelasGroupOption>();
+    for (const kelas of kelasList) {
+      const major = kelas.major.trim();
+      const key = `${kelas.level}|||${major.toLowerCase()}`;
+      if (!groups.has(key)) {
+        groups.set(key, {
+          key,
+          label: formatKelasGroup(kelas.level, major),
+          level: kelas.level,
+          major,
+        });
+      }
+    }
+    return Array.from(groups.values()).sort(
+      (a, b) => a.level.localeCompare(b.level) || a.major.localeCompare(b.major)
+    );
+  }, [kelasList]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -700,9 +731,9 @@ export default function ManagementUserPage() {
                           ? "Memuat kelas..."
                           : "-- Pilih Kelas --"}
                       </option>
-                      {kelasList.map((k) => (
-                        <option key={k.id} value={k.name}>
-                          {k.name} — {k.level} {k.major}
+                      {kelasGroups.map((k) => (
+                        <option key={k.key} value={k.label}>
+                          {k.label}
                         </option>
                       ))}
                     </select>

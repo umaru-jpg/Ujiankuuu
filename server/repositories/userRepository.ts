@@ -9,6 +9,7 @@ export interface AuthUserRow extends RowDataPacket {
   password_hash: string;
   role: Role;
   title: string | null;
+  department: string | null;
   avatar_initial: string | null;
   avatar_color: string | null;
 }
@@ -25,6 +26,7 @@ export async function findAuthUserByIdentifier(
       password_hash,
       role,
       title,
+      department,
       avatar_initial,
       avatar_color
     FROM users
@@ -43,6 +45,7 @@ export function toSessionUser(row: AuthUserRow): User {
     username: row.username,
     role: row.role,
     title: row.title ?? "",
+    department: row.department ?? "",
     initial: row.avatar_initial ?? row.name.slice(0, 1).toUpperCase(),
     color: row.avatar_color ?? "from-blue-600 to-indigo-500",
   };

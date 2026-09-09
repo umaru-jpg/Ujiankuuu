@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout, {
   useDashboardUser,
@@ -11,6 +11,7 @@ import Icon from "@/components/Icon";
 import { HOME_BY_ROLE, getSession } from "@/lib/auth";
 
 interface SiswaResult {
+  exam_schedule_id: number;
   score: number;
   correct_answers: number;
   wrong_answers: number;
@@ -30,7 +31,8 @@ function formatDuration(seconds: number): string {
 function SiswaHasil() {
   const router = useRouter();
   const user = useDashboardUser();
-  const [result, setResult] = useState<SiswaResult | null>(null);
+  const [results, setResults] = useState<SiswaResult[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,12 +47,12 @@ function SiswaHasil() {
           return;
         }
 
-        const res = await fetch(`/api/hasil/siswa?userId=${session.id}`);
+        const res = await fetch(`/api/hasil/siswa?userId=${session.id}&all=true`);
         if (!res.ok) throw new Error("Gagal mengambil data");
 
         const data = await res.json();
         if (!cancelled) {
-          setResult(data.result ?? null);
+          setResults(data.results ?? []);
         }
       } catch (err) {
         console.error("Fetch siswa hasil error:", err);
@@ -62,6 +64,27 @@ function SiswaHasil() {
     fetchData();
     return () => { cancelled = true; };
   }, []);
+
+  const subjectGroups = useMemo(() => {
+    const groups = new Map<string, SiswaResult[]>();
+    for (const item of results) {
+      const subject = item.exam_subject || "Tanpa Mapel";
+      groups.set(subject, [...(groups.get(subject) ?? []), item]);
+    }
+    return Array.from(groups.entries()).map(([subject, items]) => ({
+      subject,
+      latest: items[0],
+      count: items.length,
+      average:
+        items.length > 0
+          ? Math.round(items.reduce((sum, item) => sum + item.score, 0) / items.length)
+          : 0,
+    }));
+  }, [results]);
+
+  const result = selectedSubject
+    ? subjectGroups.find((group) => group.subject === selectedSubject)?.latest ?? null
+    : null;
 
   if (loading) {
     return (
@@ -78,7 +101,7 @@ function SiswaHasil() {
     );
   }
 
-  if (!result) {
+  if (results.length === 0) {
     return (
       <div className="max-w-[800px] mx-auto space-y-stack-lg mt-stack-md">
         <div className="text-center space-y-2">
@@ -100,15 +123,89 @@ function SiswaHasil() {
     );
   }
 
+  if (!result) {
+    return (
+      <div className="max-w-[960px] mx-auto space-y-stack-lg mt-stack-md">
+        <div className="text-center space-y-2">
+          <h1 className="font-display-lg text-display-lg text-on-surface">Hasil Ujian</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            Pilih mata pelajaran untuk melihat detail hasil ujian.
+          </p>
+        </div>
+
+        <div className="bg-surface rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+          {subjectGroups.map((group) => {
+            const latestPass = group.latest.score >= 75;
+            return (
+              <button
+                key={group.subject}
+                type="button"
+                onClick={() => setSelectedSubject(group.subject)}
+                className="w-full p-4 md:p-5 border-b border-outline-variant last:border-b-0 text-left hover:bg-surface-container-low transition-colors active:scale-[0.99] cursor-pointer"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-label-caps text-label-caps mb-3 ${
+                      latestPass ? "bg-primary-fixed text-on-primary-fixed" : "bg-error-container text-on-error-container"
+                    }`}>
+                      <Icon name={latestPass ? "verified" : "cancel"} size={14} />
+                      {latestPass ? "LULUS" : "TIDAK LULUS"}
+                    </div>
+                    <h2 className="font-headline-md text-headline-md text-on-surface mb-1 truncate">
+                      {group.subject}
+                    </h2>
+                    <p className="font-body-sm text-body-sm text-on-surface-variant flex flex-wrap items-center gap-x-4 gap-y-1">
+                      <span className="flex items-center gap-1">
+                        <Icon name="assignment" size={16} />
+                        {group.count} ujian dikerjakan
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Icon name="calendar_month" size={16} />
+                        Terakhir {group.latest.exam_date}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Icon name="schedule" size={16} />
+                        {formatDuration(group.latest.duration_seconds)}
+                      </span>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 md:gap-6 shrink-0">
+                    <div className="text-right">
+                      <p className="font-label-caps text-label-caps text-on-surface-variant">Nilai Terakhir</p>
+                      <p className="font-headline-md text-headline-md text-primary">{group.latest.score}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-label-caps text-label-caps text-on-surface-variant">Rata-rata</p>
+                      <p className="font-headline-md text-headline-md text-on-surface">{group.average}</p>
+                    </div>
+                    <Icon name="chevron_right" size={24} className="text-on-surface-variant" />
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   const lulus = result.score >= 75;
 
   return (
     <div className="max-w-[800px] mx-auto space-y-stack-lg mt-stack-md">
       {/* ===== Hero / Celebration ===== */}
       <div className="text-center space-y-2">
+        <button
+          type="button"
+          onClick={() => setSelectedSubject(null)}
+          className="mx-auto mb-3 px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface font-title-sm text-title-sm flex items-center gap-2 cursor-pointer"
+        >
+          <Icon name="arrow_back" size={18} />
+          Semua Mapel
+        </button>
         <h1 className="font-display-lg text-display-lg text-on-surface">Ujian Selesai!</h1>
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Kerja bagus! Berikut adalah hasil dari evaluasi Anda hari ini.
+          Kerja bagus! Berikut adalah hasil {result.exam_subject} dari evaluasi Anda.
         </p>
       </div>
 
